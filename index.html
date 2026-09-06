@@ -352,23 +352,6 @@
             font-weight: 400;
             font-size: 14px;
         }
-        .required-alert {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .required-alert h4 {
-            font-size: 12px;
-            font-weight: 600;
-            color: #856404;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
         .button-group {
             display: flex;
             gap: 10px;
@@ -584,7 +567,6 @@
                 <button class="close-button" onclick="cerrarModalPago()">×</button>
             </div>
 
-            <!-- DATOS BÁSICOS -->
             <div class="form-section">
                 <div class="form-section-title">📋 Datos del Pago</div>
                 
@@ -613,7 +595,6 @@
                 </div>
             </div>
 
-            <!-- MODALIDAD DE ENTREGA -->
             <div class="form-section">
                 <div class="form-section-title">🔄 ¿Cómo se entregó?</div>
                 
@@ -637,7 +618,6 @@
                 </div>
             </div>
 
-            <!-- CONTACTO -->
             <div class="form-section">
                 <div class="form-section-title">👤 Contacto</div>
                 
@@ -652,7 +632,6 @@
                 </div>
             </div>
 
-            <!-- CONFIRMACIÓN -->
             <div class="form-section">
                 <div class="checkbox-group">
                     <h4 style="margin: 0 0 12px 0; font-size: 12px; font-weight: 600; color: #856404;">⚠️ CONFIRMACIÓN OBLIGATORIA</h4>
@@ -667,12 +646,8 @@
                 </div>
             </div>
 
-            <!-- BOTONES -->
             <div class="button-group">
                 <button onclick="guardarPago()" id="btnGuardarPago">✓ Guardar Pago</button>
-            </div>
-            <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-top: 15px; text-align: center; display: none;" id="successPago">
-                ✓ Pago guardado correctamente
             </div>
             <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin-top: 15px; text-align: center; display: none;" id="errorPago">
                 ⚠ Debes completar ambas confirmaciones para guardar
@@ -728,44 +703,14 @@
                 </div>
             </div>
 
-            <!-- BOTONES -->
             <div class="button-group">
                 <button onclick="guardarGasto()" id="btnGuardarGasto">✓ Guardar Gasto</button>
-            </div>
-            <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-top: 15px; text-align: center; display: none;" id="successGasto">
-                ✓ Gasto guardado correctamente
             </div>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCJPNnJZ4ZE6rL6x-IA2w9VDJLJMvWfYb0",
-            authDomain: "gimnasia-unlp.firebaseapp.com",
-            projectId: "gen-lang-client-02640914-425b1",
-            storageBucket: "gen-lang-client-02640914-425b1.appspot.com",
-            messagingSenderId: "1043206833619",
-            appId: "1:1043206833619:web:a74eef8c51906d23cef3f1"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        const ALUMNAS = [
-            { nombre: "Arocas, Guillermina", dni: "54214993" },
-            { nombre: "Bazzana, Sofía", dni: "54417252" },
-            { nombre: "Gastaldi, Indiana", dni: "53058354" },
-            { nombre: "Hasperué, Sofía", dni: "50688236" },
-            { nombre: "Gutiérrez Antiqueo, María Luz", dni: "55583300" },
-            { nombre: "Arce Medina, Oriana", dni: "54067969" },
-            { nombre: "Suñiga Zambrano, Morena Candela", dni: "52057875" },
-            { nombre: "Galosi, Zoe", dni: "52917119" },
-            { nombre: "Bustamante, Alina Avril", dni: "54602148" }
-        ];
-
+    <script>
+        // Inicializar appData globalmente ANTES de cargar Firebase
         window.appData = {
             pagos: [],
             gastos: [],
@@ -773,159 +718,6 @@
             editandoGastoId: null
         };
 
-        window.addEventListener("load", async () => {
-            await cargarDatos();
-            rellenarSelectAlumnas();
-            actualizarVistas();
-            setFechahoy();
-        });
-
-        window.cargarDatos = async function() {
-            try {
-                const pagosDocs = await getDocs(collection(db, "proyectos/aguas-verdes-usag-2026/pagos"));
-                window.appData.pagos = pagosDocs.docs.map(doc => ({...doc.data(), id: doc.id}));
-
-                const gastosDocs = await getDocs(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"));
-                window.appData.gastos = gastosDocs.docs.map(doc => ({...doc.data(), id: doc.id}));
-            } catch (error) {
-                console.log("Inicializando Firebase");
-            }
-        };
-
-        window.guardarPago = async function() {
-            const alumna = document.getElementById("pagoAlumna").value;
-            const cuota = document.getElementById("pagoCuota").value;
-            const monto = parseInt(document.getElementById("pagoMonto").value);
-            const fecha = document.getElementById("pagoFecha").value;
-            const modalidadEntrega = document.querySelector('input[name="modalidadEntrega"]:checked').value;
-            const profesora = document.getElementById("pagoProfesora").value;
-            const contacto = document.getElementById("pagoContacto").value;
-            const obs = document.getElementById("pagoObs").value;
-            const confirmProf = document.getElementById("confirmProf").checked;
-            const confirmJose = document.getElementById("confirmJose").checked;
-
-            if (!alumna || !cuota || !monto || !fecha) {
-                window.mostrarMensaje("Completa campos obligatorios", "error");
-                return;
-            }
-
-            if (!confirmProf || !confirmJose) {
-                document.getElementById("errorPago").style.display = "block";
-                setTimeout(() => { document.getElementById("errorPago").style.display = "none"; }, 3000);
-                return;
-            }
-
-            try {
-                const datos = { 
-                    alumna, cuota, monto, fecha, modalidadEntrega, profesora, contacto, 
-                    observaciones: obs, confirmProf, confirmJose 
-                };
-
-                if (window.appData.editandoPagoId) {
-                    await updateDoc(doc(db, "proyectos/aguas-verdes-usag-2026/pagos", window.appData.editandoPagoId), datos);
-                } else {
-                    await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/pagos"), datos);
-                }
-                
-                window.cerrarModalPago();
-                await window.cargarDatos();
-                window.actualizarVistas();
-            } catch (error) {
-                window.mostrarMensaje("Error: " + error.message, "error");
-            }
-        };
-
-        window.guardarGasto = async function() {
-            const concepto = document.getElementById("gastoConcepto").value;
-            const categoria = document.getElementById("gastoCategoria").value;
-            const monto = parseInt(document.getElementById("gastoMonto").value);
-            const fecha = document.getElementById("gastoFecha").value;
-            const obs = document.getElementById("gastoObs").value;
-
-            if (!concepto || !categoria || !monto || !fecha) {
-                window.mostrarMensaje("Completa campos obligatorios", "error");
-                return;
-            }
-
-            try {
-                const datos = { concepto, categoria, monto, fecha, observaciones: obs };
-
-                if (window.appData.editandoGastoId) {
-                    await updateDoc(doc(db, "proyectos/aguas-verdes-usag-2026/gastos", window.appData.editandoGastoId), datos);
-                } else {
-                    await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"), datos);
-                }
-                
-                window.cerrarModalGasto();
-                await window.cargarDatos();
-                window.actualizarVistas();
-            } catch (error) {
-                window.mostrarMensaje("Error: " + error.message, "error");
-            }
-        };
-
-        window.eliminarPago = async function(id) {
-            if (confirm("¿Eliminar este pago?")) {
-                try {
-                    await deleteDoc(doc(db, "proyectos/aguas-verdes-usag-2026/pagos", id));
-                    await window.cargarDatos();
-                    window.actualizarVistas();
-                    window.mostrarMensaje("Pago eliminado", "success");
-                } catch (error) {
-                    window.mostrarMensaje("Error: " + error.message, "error");
-                }
-            }
-        };
-
-        window.eliminarGasto = async function(id) {
-            if (confirm("¿Eliminar este gasto?")) {
-                try {
-                    await deleteDoc(doc(db, "proyectos/aguas-verdes-usag-2026/gastos", id));
-                    await window.cargarDatos();
-                    window.actualizarVistas();
-                    window.mostrarMensaje("Gasto eliminado", "success");
-                } catch (error) {
-                    window.mostrarMensaje("Error: " + error.message, "error");
-                }
-            }
-        };
-
-        window.editarPago = function(pago) {
-            window.appData.editandoPagoId = pago.id;
-            document.getElementById("pagoAlumna").value = pago.alumna;
-            document.getElementById("pagoCuota").value = pago.cuota;
-            document.getElementById("pagoMonto").value = pago.monto;
-            document.getElementById("pagoFecha").value = pago.fecha;
-            document.getElementById("pagoProfesora").value = pago.profesora || "";
-            document.getElementById("pagoContacto").value = pago.contacto || "";
-            document.getElementById("pagoObs").value = pago.observaciones || "";
-            if (pago.modalidadEntrega === "directo") {
-                document.getElementById("entregaDirecto").checked = true;
-            } else {
-                document.getElementById("entregaProf").checked = true;
-            }
-            document.getElementById("confirmProf").checked = pago.confirmProf || false;
-            document.getElementById("confirmJose").checked = pago.confirmJose || false;
-            document.getElementById("modalPagoTitle").textContent = "✏️ Editar Pago";
-            document.getElementById("btnGuardarPago").textContent = "Actualizar Pago";
-            document.getElementById("modalPago").classList.add("active");
-            window.toggleEntrega();
-        };
-
-        window.editarGasto = function(gasto) {
-            window.appData.editandoGastoId = gasto.id;
-            document.getElementById("gastoConcepto").value = gasto.concepto;
-            document.getElementById("gastoCategoria").value = gasto.categoria;
-            document.getElementById("gastoMonto").value = gasto.monto;
-            document.getElementById("gastoFecha").value = gasto.fecha;
-            document.getElementById("gastoObs").value = gasto.observaciones || "";
-            document.getElementById("modalGastoTitle").textContent = "✏️ Editar Gasto";
-            document.getElementById("btnGuardarGasto").textContent = "Actualizar Gasto";
-            document.getElementById("modalGasto").classList.add("active");
-        };
-    </script>
-
-    <script>
         const ALUMNAS = [
             { nombre: "Arocas, Guillermina", dni: "54214993" },
             { nombre: "Bazzana, Sofía", dni: "54417252" },
@@ -938,17 +730,7 @@
             { nombre: "Bustamante, Alina Avril", dni: "54602148" }
         ];
 
-        function rellenarSelectAlumnas() {
-            const select = document.getElementById("pagoAlumna");
-            select.innerHTML = '<option value="">Selecciona una alumna</option>';
-            ALUMNAS.forEach(a => {
-                const option = document.createElement("option");
-                option.value = a.nombre;
-                option.textContent = a.nombre;
-                select.appendChild(option);
-            });
-        }
-
+        // Funciones globales de utilidad
         window.setFechahoy = function() {
             const hoy = new Date().toISOString().split("T")[0];
             document.getElementById("pagoFecha").value = hoy;
@@ -1002,7 +784,6 @@
             document.getElementById("gastoCategoria").value = "";
             document.getElementById("gastoMonto").value = "";
             document.getElementById("gastoObs").value = "";
-            document.getElementById("successGasto").style.display = "none";
             document.getElementById("modalGasto").classList.add("active");
         };
 
@@ -1021,6 +802,19 @@
             };
         };
 
+        window.cambiarTab = function(button, tabName) {
+            document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+            document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+            document.getElementById(tabName).classList.add("active");
+            button.classList.add("active");
+        };
+
+        window.mostrarMensaje = function(texto, tipo) {
+            const div = document.getElementById("message");
+            div.innerHTML = `<div class="alert ${tipo}">${texto}</div>`;
+            setTimeout(() => { div.innerHTML = ""; }, 3000);
+        };
+
         window.actualizarVistas = function() {
             const totalRecaudado = window.appData.pagos.reduce((sum, p) => sum + (p.monto || 0), 0);
             const totalGastado = window.appData.gastos.reduce((sum, g) => sum + (g.monto || 0), 0);
@@ -1033,7 +827,6 @@
             document.getElementById("sumGastado").textContent = "$" + totalGastado.toLocaleString("es-AR");
             document.getElementById("sumBalance").textContent = "$" + (totalRecaudado - totalGastado).toLocaleString("es-AR");
 
-            // Resumen alumnas
             document.getElementById("resumenAlumnas").innerHTML = ALUMNAS.map(a => {
                 const totales = window.calcularTotales(a.nombre);
                 const porcentaje = (totales.pagado / 400000) * 100;
@@ -1054,7 +847,6 @@
                 `;
             }).join("");
 
-            // Desglose ingresos
             const desgloseIngresos = {};
             window.appData.pagos.forEach(p => {
                 if (!desgloseIngresos[p.cuota]) desgloseIngresos[p.cuota] = 0;
@@ -1068,7 +860,6 @@
                 </div>
             `).join("");
 
-            // Desglose egresos
             const desgloseEgresos = {};
             window.appData.gastos.forEach(g => {
                 if (!desgloseEgresos[g.categoria]) desgloseEgresos[g.categoria] = 0;
@@ -1082,7 +873,6 @@
                 </div>
             `).join("");
 
-            // Tabla pagos
             document.getElementById("tablaPagos").innerHTML = window.appData.pagos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).map(p => `
                 <tr>
                     <td>${new Date(p.fecha).toLocaleDateString("es-AR")}</td>
@@ -1099,7 +889,6 @@
                 </tr>
             `).join("");
 
-            // Tabla gastos
             document.getElementById("tablaGastos").innerHTML = window.appData.gastos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).map(g => `
                 <tr>
                     <td>${new Date(g.fecha).toLocaleDateString("es-AR")}</td>
@@ -1115,7 +904,6 @@
                 </tr>
             `).join("");
 
-            // Tabla alumnas
             document.getElementById("tablaAlumnas").innerHTML = ALUMNAS.map(a => {
                 const totales = window.calcularTotales(a.nombre);
                 return `
@@ -1129,19 +917,6 @@
                     </tr>
                 `;
             }).join("");
-        };
-
-        window.cambiarTab = function(button, tabName) {
-            document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-            document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-            document.getElementById(tabName).classList.add("active");
-            button.classList.add("active");
-        };
-
-        window.mostrarMensaje = function(texto, tipo) {
-            const div = document.getElementById("message");
-            div.innerHTML = `<div class="alert ${tipo}">${texto}</div>`;
-            setTimeout(() => { div.innerHTML = ""; }, 3000);
         };
 
         window.exportarJSON = function() {
@@ -1172,6 +947,182 @@
             a.download = `aguas-verdes-usag-${new Date().toISOString().split("T")[0]}.json`;
             a.click();
         };
+
+        function rellenarSelectAlumnas() {
+            const select = document.getElementById("pagoAlumna");
+            select.innerHTML = '<option value="">Selecciona una alumna</option>';
+            ALUMNAS.forEach(a => {
+                const option = document.createElement("option");
+                option.value = a.nombre;
+                option.textContent = a.nombre;
+                select.appendChild(option);
+            });
+        }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJPNnJZ4ZE6rL6x-IA2w9VDJLJMvWfYb0",
+            authDomain: "gimnasia-unlp.firebaseapp.com",
+            projectId: "gen-lang-client-02640914-425b1",
+            storageBucket: "gen-lang-client-02640914-425b1.appspot.com",
+            messagingSenderId: "1043206833619",
+            appId: "1:1043206833619:web:a74eef8c51906d23cef3f1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.cargarDatos = async function() {
+            try {
+                const pagosDocs = await getDocs(collection(db, "proyectos/aguas-verdes-usag-2026/pagos"));
+                window.appData.pagos = pagosDocs.docs.map(doc => ({...doc.data(), id: doc.id}));
+
+                const gastosDocs = await getDocs(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"));
+                window.appData.gastos = gastosDocs.docs.map(doc => ({...doc.data(), id: doc.id}));
+                
+                window.actualizarVistas();
+            } catch (error) {
+                console.log("Firebase no disponible:", error.message);
+            }
+        };
+
+        window.guardarPago = async function() {
+            const alumna = document.getElementById("pagoAlumna").value;
+            const cuota = document.getElementById("pagoCuota").value;
+            const monto = parseInt(document.getElementById("pagoMonto").value);
+            const fecha = document.getElementById("pagoFecha").value;
+            const modalidadEntrega = document.querySelector('input[name="modalidadEntrega"]:checked').value;
+            const profesora = document.getElementById("pagoProfesora").value;
+            const contacto = document.getElementById("pagoContacto").value;
+            const obs = document.getElementById("pagoObs").value;
+            const confirmProf = document.getElementById("confirmProf").checked;
+            const confirmJose = document.getElementById("confirmJose").checked;
+
+            if (!alumna || !cuota || !monto || !fecha) {
+                window.mostrarMensaje("Completa campos obligatorios", "error");
+                return;
+            }
+
+            if (!confirmProf || !confirmJose) {
+                document.getElementById("errorPago").style.display = "block";
+                setTimeout(() => { document.getElementById("errorPago").style.display = "none"; }, 3000);
+                return;
+            }
+
+            try {
+                const datos = { 
+                    alumna, cuota, monto, fecha, modalidadEntrega, profesora, contacto, 
+                    observaciones: obs, confirmProf, confirmJose 
+                };
+
+                if (window.appData.editandoPagoId) {
+                    await updateDoc(doc(db, "proyectos/aguas-verdes-usag-2026/pagos", window.appData.editandoPagoId), datos);
+                } else {
+                    await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/pagos"), datos);
+                }
+                
+                window.cerrarModalPago();
+                await window.cargarDatos();
+            } catch (error) {
+                window.mostrarMensaje("Error: " + error.message, "error");
+            }
+        };
+
+        window.guardarGasto = async function() {
+            const concepto = document.getElementById("gastoConcepto").value;
+            const categoria = document.getElementById("gastoCategoria").value;
+            const monto = parseInt(document.getElementById("gastoMonto").value);
+            const fecha = document.getElementById("gastoFecha").value;
+            const obs = document.getElementById("gastoObs").value;
+
+            if (!concepto || !categoria || !monto || !fecha) {
+                window.mostrarMensaje("Completa campos obligatorios", "error");
+                return;
+            }
+
+            try {
+                const datos = { concepto, categoria, monto, fecha, observaciones: obs };
+
+                if (window.appData.editandoGastoId) {
+                    await updateDoc(doc(db, "proyectos/aguas-verdes-usag-2026/gastos", window.appData.editandoGastoId), datos);
+                } else {
+                    await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"), datos);
+                }
+                
+                window.cerrarModalGasto();
+                await window.cargarDatos();
+            } catch (error) {
+                window.mostrarMensaje("Error: " + error.message, "error");
+            }
+        };
+
+        window.eliminarPago = async function(id) {
+            if (confirm("¿Eliminar este pago?")) {
+                try {
+                    await deleteDoc(doc(db, "proyectos/aguas-verdes-usag-2026/pagos", id));
+                    await window.cargarDatos();
+                    window.mostrarMensaje("Pago eliminado", "success");
+                } catch (error) {
+                    window.mostrarMensaje("Error: " + error.message, "error");
+                }
+            }
+        };
+
+        window.eliminarGasto = async function(id) {
+            if (confirm("¿Eliminar este gasto?")) {
+                try {
+                    await deleteDoc(doc(db, "proyectos/aguas-verdes-usag-2026/gastos", id));
+                    await window.cargarDatos();
+                    window.mostrarMensaje("Gasto eliminado", "success");
+                } catch (error) {
+                    window.mostrarMensaje("Error: " + error.message, "error");
+                }
+            }
+        };
+
+        window.editarPago = function(pago) {
+            window.appData.editandoPagoId = pago.id;
+            document.getElementById("pagoAlumna").value = pago.alumna;
+            document.getElementById("pagoCuota").value = pago.cuota;
+            document.getElementById("pagoMonto").value = pago.monto;
+            document.getElementById("pagoFecha").value = pago.fecha;
+            document.getElementById("pagoProfesora").value = pago.profesora || "";
+            document.getElementById("pagoContacto").value = pago.contacto || "";
+            document.getElementById("pagoObs").value = pago.observaciones || "";
+            if (pago.modalidadEntrega === "directo") {
+                document.getElementById("entregaDirecto").checked = true;
+            } else {
+                document.getElementById("entregaProf").checked = true;
+            }
+            document.getElementById("confirmProf").checked = pago.confirmProf || false;
+            document.getElementById("confirmJose").checked = pago.confirmJose || false;
+            document.getElementById("modalPagoTitle").textContent = "✏️ Editar Pago";
+            document.getElementById("btnGuardarPago").textContent = "Actualizar Pago";
+            document.getElementById("modalPago").classList.add("active");
+            window.toggleEntrega();
+        };
+
+        window.editarGasto = function(gasto) {
+            window.appData.editandoGastoId = gasto.id;
+            document.getElementById("gastoConcepto").value = gasto.concepto;
+            document.getElementById("gastoCategoria").value = gasto.categoria;
+            document.getElementById("gastoMonto").value = gasto.monto;
+            document.getElementById("gastoFecha").value = gasto.fecha;
+            document.getElementById("gastoObs").value = gasto.observaciones || "";
+            document.getElementById("modalGastoTitle").textContent = "✏️ Editar Gasto";
+            document.getElementById("btnGuardarGasto").textContent = "Actualizar Gasto";
+            document.getElementById("modalGasto").classList.add("active");
+        };
+
+        window.addEventListener("load", async () => {
+            rellenarSelectAlumnas();
+            await window.cargarDatos();
+            window.setFechahoy();
+        });
     </script>
 </body>
 </html>
