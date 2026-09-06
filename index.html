@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aguas Verdes USAG 2026</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
     <style>
         * {
             margin: 0;
@@ -126,25 +124,17 @@
         button:hover {
             background: #5568d3;
         }
-        button.secondary {
-            background: #6c757d;
-        }
-        button.secondary:hover {
-            background: #5a6268;
-        }
         button.delete {
             background: #dc3545;
             padding: 6px 12px;
             font-size: 12px;
-        }
-        button.delete:hover {
-            background: #c82333;
         }
         .table-wrapper {
             overflow-x: auto;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
         }
         table {
             width: 100%;
@@ -165,9 +155,6 @@
             padding: 12px 15px;
             border-bottom: 1px solid #e0e0e0;
             font-size: 14px;
-        }
-        tr:hover {
-            background: #f8f9fa;
         }
         .status {
             display: inline-block;
@@ -215,9 +202,6 @@
             justify-content: space-between;
             align-items: center;
         }
-        .modal-header h2 {
-            font-size: 20px;
-        }
         .close-button {
             background: transparent;
             color: #999;
@@ -225,10 +209,6 @@
             border: none;
             cursor: pointer;
             padding: 0;
-            width: auto;
-        }
-        .close-button:hover {
-            color: #333;
         }
         .alert {
             padding: 15px;
@@ -243,29 +223,16 @@
             background: #f8d7da;
             color: #721c24;
         }
-        .export-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .loading {
-            text-align: center;
-            padding: 40px;
-            font-size: 16px;
-        }
         .actions {
             display: flex;
             gap: 8px;
         }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+        .info-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
         }
     </style>
 </head>
@@ -279,15 +246,15 @@
         <div id="message"></div>
 
         <div class="tabs">
-            <button class="tab-button active" onclick="cambiarTab('dashboard')">Dashboard</button>
-            <button class="tab-button" onclick="cambiarTab('pagos')">Pagos</button>
-            <button class="tab-button" onclick="cambiarTab('gastos')">Gastos</button>
-            <button class="tab-button" onclick="cambiarTab('alumnas')">Alumnas</button>
+            <button class="tab-button active" onclick="cambiarTab(this, 'dashboard')">Dashboard</button>
+            <button class="tab-button" onclick="cambiarTab(this, 'pagos')">Pagos</button>
+            <button class="tab-button" onclick="cambiarTab(this, 'gastos')">Gastos</button>
+            <button class="tab-button" onclick="cambiarTab(this, 'alumnas')">Alumnas</button>
         </div>
 
         <!-- DASHBOARD -->
         <div id="dashboard" class="section active">
-            <div class="export-buttons">
+            <div style="margin-bottom: 20px;">
                 <button onclick="exportarJSON()">📥 Exportar JSON</button>
             </div>
 
@@ -306,7 +273,7 @@
                 </div>
                 <div class="card">
                     <h3>Alumnas</h3>
-                    <div class="value" id="cantAlumnas">9</div>
+                    <div class="value">9</div>
                 </div>
             </div>
 
@@ -317,7 +284,6 @@
         <!-- PAGOS -->
         <div id="pagos" class="section">
             <button onclick="abrirModalPago()" style="margin-bottom: 20px;">+ Agregar Pago</button>
-
             <div class="table-wrapper">
                 <table>
                     <thead>
@@ -329,8 +295,7 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaPagos">
-                    </tbody>
+                    <tbody id="tablaPagos"></tbody>
                 </table>
             </div>
         </div>
@@ -338,7 +303,6 @@
         <!-- GASTOS -->
         <div id="gastos" class="section">
             <button onclick="abrirModalGasto()" style="margin-bottom: 20px;">+ Agregar Gasto</button>
-
             <div class="table-wrapper">
                 <table>
                     <thead>
@@ -350,8 +314,7 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaGastos">
-                    </tbody>
+                    <tbody id="tablaGastos"></tbody>
                 </table>
             </div>
         </div>
@@ -370,8 +333,7 @@
                             <th>Estado</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaAlumnas">
-                    </tbody>
+                    <tbody id="tablaAlumnas"></tbody>
                 </table>
             </div>
         </div>
@@ -381,46 +343,37 @@
     <div id="modalPago" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalPagoTitle">Agregar Pago</h2>
+                <h2>Agregar Pago</h2>
                 <button class="close-button" onclick="cerrarModalPago()">×</button>
             </div>
-
             <div class="form-group">
                 <label>Alumna *</label>
-                <select id="pagoAlumna">
-                    <option value="">Selecciona una alumna</option>
-                </select>
+                <select id="pagoAlumna"></select>
             </div>
-
             <div class="form-group">
                 <label>Cuota *</label>
                 <select id="pagoCuota" onchange="actualizarMonto()">
-                    <option value="">Selecciona una cuota</option>
+                    <option value="">Selecciona</option>
                     <option value="Seña 1">Seña 1 - $250.000</option>
                     <option value="Seña 2">Seña 2 - $150.000</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>Monto *</label>
                 <input type="number" id="pagoMonto" />
             </div>
-
             <div class="form-group">
                 <label>Fecha *</label>
                 <input type="date" id="pagoFecha" />
             </div>
-
             <div class="form-group">
                 <label>Entregado por</label>
                 <input type="text" id="pagoEntregadoPor" />
             </div>
-
             <div class="form-group">
                 <label>Observaciones</label>
-                <textarea id="pagoObs"></textarea>
+                <textarea id="pagoObs" rows="3"></textarea>
             </div>
-
             <button onclick="guardarPago()" style="width: 100%;">Registrar Pago</button>
         </div>
     </div>
@@ -429,19 +382,17 @@
     <div id="modalGasto" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalGastoTitle">Agregar Gasto</h2>
+                <h2>Agregar Gasto</h2>
                 <button class="close-button" onclick="cerrarModalGasto()">×</button>
             </div>
-
             <div class="form-group">
                 <label>Concepto *</label>
                 <input type="text" id="gastoConcepto" />
             </div>
-
             <div class="form-group">
                 <label>Categoría *</label>
                 <select id="gastoCategoria">
-                    <option value="">Selecciona una categoría</option>
+                    <option value="">Selecciona</option>
                     <option value="🏠 Alojamiento">🏠 Alojamiento</option>
                     <option value="🍽️ Comidas">🍽️ Comidas</option>
                     <option value="🚌 Transporte">🚌 Transporte</option>
@@ -449,28 +400,26 @@
                     <option value="📋 Otros">📋 Otros</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>Monto *</label>
                 <input type="number" id="gastoMonto" />
             </div>
-
             <div class="form-group">
                 <label>Fecha *</label>
                 <input type="date" id="gastoFecha" />
             </div>
-
             <div class="form-group">
                 <label>Observaciones</label>
-                <textarea id="gastoObs"></textarea>
+                <textarea id="gastoObs" rows="3"></textarea>
             </div>
-
             <button onclick="guardarGasto()" style="width: 100%;">Registrar Gasto</button>
         </div>
     </div>
 
-    <script>
-        // Firebase config
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyCJPNnJZ4ZE6rL6x-IA2w9VDJLJMvWfYb0",
             authDomain: "gimnasia-unlp.firebaseapp.com",
@@ -480,8 +429,8 @@
             appId: "1:1043206833619:web:a74eef8c51906d23cef3f1"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
         const ALUMNAS = [
             { nombre: "Arocas, Guillermina", dni: "54214993" },
@@ -495,108 +444,44 @@
             { nombre: "Bustamante, Alina Avril", dni: "54602148" }
         ];
 
-        let app = {
+        window.appData = {
             pagos: [],
-            gastos: [],
-            editandoPago: null,
-            editandoGasto: null
+            gastos: []
         };
 
         // Inicializar
-        async function inicializar() {
+        window.addEventListener("load", async () => {
             await cargarDatos();
             rellenarSelectAlumnas();
-            actualizarDashboard();
-        }
+            actualizarVistas();
+            setFechahoy();
+        });
 
-        // Cargar datos de Firebase
-        async function cargarDatos() {
+        window.cargarDatos = async function() {
             try {
-                const doc = await db.collection("proyectos").doc("aguas-verdes-usag-2026").get();
-                if (doc.exists) {
-                    app.pagos = doc.data().pagos || [];
-                    app.gastos = doc.data().gastos || [];
-                } else {
-                    app.pagos = [];
-                    app.gastos = [];
-                }
-                actualizarVistas();
+                const docSnap = await getDocs(collection(db, "proyectos/aguas-verdes-usag-2026/pagos"));
+                window.appData.pagos = docSnap.docs.map(doc => ({...doc.data(), id: doc.id}));
+
+                const docSnap2 = await getDocs(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"));
+                window.appData.gastos = docSnap2.docs.map(doc => ({...doc.data(), id: doc.id}));
             } catch (error) {
-                mostrarMensaje("Error al cargar datos: " + error.message, "error");
+                console.log("Primeras carga de datos");
+                window.appData = { pagos: [], gastos: [] };
             }
-        }
+        };
 
-        // Guardar datos a Firebase
-        async function guardarDatos() {
+        window.guardarDatos = async function() {
             try {
-                await db.collection("proyectos").doc("aguas-verdes-usag-2026").set({
-                    nombre: "Aguas Verdes 2026 - USAG",
-                    fechaInicio: "2026-10-01",
-                    fechaFin: "2026-10-04",
+                await setDoc(doc(db, "proyectos", "aguas-verdes-usag-2026"), {
                     alumnas: ALUMNAS,
-                    pagos: app.pagos,
-                    gastos: app.gastos,
-                    ultimaActualizacion: new Date()
+                    totalPagos: window.appData.pagos.length
                 });
             } catch (error) {
-                mostrarMensaje("Error al guardar: " + error.message, "error");
+                console.error("Error:", error);
             }
-        }
+        };
 
-        // Rellenar select de alumnas
-        function rellenarSelectAlumnas() {
-            const select = document.getElementById("pagoAlumna");
-            ALUMNAS.forEach(a => {
-                const option = document.createElement("option");
-                option.value = a.nombre;
-                option.textContent = a.nombre;
-                select.appendChild(option);
-            });
-        }
-
-        // Actualizar monto basado en cuota
-        function actualizarMonto() {
-            const cuota = document.getElementById("pagoCuota").value;
-            const montoInput = document.getElementById("pagoMonto");
-            if (cuota === "Seña 1") montoInput.value = "250000";
-            else if (cuota === "Seña 2") montoInput.value = "150000";
-        }
-
-        // Modal Pago
-        function abrirModalPago() {
-            document.getElementById("modalPago").classList.add("active");
-            document.getElementById("pagoAlumna").value = "";
-            document.getElementById("pagoCuota").value = "";
-            document.getElementById("pagoMonto").value = "";
-            document.getElementById("pagoFecha").valueAsDate = new Date();
-            document.getElementById("pagoEntregadoPor").value = "";
-            document.getElementById("pagoObs").value = "";
-            app.editandoPago = null;
-            document.getElementById("modalPagoTitle").textContent = "Agregar Pago";
-        }
-
-        function cerrarModalPago() {
-            document.getElementById("modalPago").classList.remove("active");
-        }
-
-        // Modal Gasto
-        function abrirModalGasto() {
-            document.getElementById("modalGasto").classList.add("active");
-            document.getElementById("gastoConcepto").value = "";
-            document.getElementById("gastoCategoria").value = "";
-            document.getElementById("gastoMonto").value = "";
-            document.getElementById("gastoFecha").valueAsDate = new Date();
-            document.getElementById("gastoObs").value = "";
-            app.editandoGasto = null;
-            document.getElementById("modalGastoTitle").textContent = "Agregar Gasto";
-        }
-
-        function cerrarModalGasto() {
-            document.getElementById("modalGasto").classList.remove("active");
-        }
-
-        // Guardar pago
-        async function guardarPago() {
+        window.guardarPago = async function() {
             const alumna = document.getElementById("pagoAlumna").value;
             const cuota = document.getElementById("pagoCuota").value;
             const monto = parseInt(document.getElementById("pagoMonto").value);
@@ -605,35 +490,24 @@
             const obs = document.getElementById("pagoObs").value;
 
             if (!alumna || !cuota || !monto || !fecha) {
-                mostrarMensaje("Completa los campos obligatorios", "error");
+                window.mostrarMensaje("Completa campos obligatorios", "error");
                 return;
             }
 
-            const pago = {
-                id: app.editandoPago || "p" + Date.now(),
-                alumna,
-                cuota,
-                monto,
-                fecha,
-                entregadoPor,
-                observaciones: obs
-            };
-
-            if (app.editandoPago) {
-                const idx = app.pagos.findIndex(p => p.id === app.editandoPago);
-                if (idx >= 0) app.pagos[idx] = pago;
-            } else {
-                app.pagos.push(pago);
+            try {
+                await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/pagos"), {
+                    alumna, cuota, monto, fecha, entregadoPor, observaciones: obs
+                });
+                window.cerrarModalPago();
+                await window.cargarDatos();
+                window.actualizarVistas();
+                window.mostrarMensaje("Pago registrado ✓", "success");
+            } catch (error) {
+                window.mostrarMensaje("Error: " + error.message, "error");
             }
+        };
 
-            await guardarDatos();
-            cerrarModalPago();
-            actualizarVistas();
-            mostrarMensaje("Pago registrado", "success");
-        }
-
-        // Guardar gasto
-        async function guardarGasto() {
+        window.guardarGasto = async function() {
             const concepto = document.getElementById("gastoConcepto").value;
             const categoria = document.getElementById("gastoCategoria").value;
             const monto = parseInt(document.getElementById("gastoMonto").value);
@@ -641,55 +515,93 @@
             const obs = document.getElementById("gastoObs").value;
 
             if (!concepto || !categoria || !monto || !fecha) {
-                mostrarMensaje("Completa los campos obligatorios", "error");
+                window.mostrarMensaje("Completa campos obligatorios", "error");
                 return;
             }
 
-            const gasto = {
-                id: app.editandoGasto || "g" + Date.now(),
-                concepto,
-                categoria,
-                monto,
-                fecha,
-                observaciones: obs
-            };
-
-            if (app.editandoGasto) {
-                const idx = app.gastos.findIndex(g => g.id === app.editandoGasto);
-                if (idx >= 0) app.gastos[idx] = gasto;
-            } else {
-                app.gastos.push(gasto);
+            try {
+                await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"), {
+                    concepto, categoria, monto, fecha, observaciones: obs
+                });
+                window.cerrarModalGasto();
+                await window.cargarDatos();
+                window.actualizarVistas();
+                window.mostrarMensaje("Gasto registrado ✓", "success");
+            } catch (error) {
+                window.mostrarMensaje("Error: " + error.message, "error");
             }
+        };
 
-            await guardarDatos();
-            cerrarModalGasto();
-            actualizarVistas();
-            mostrarMensaje("Gasto registrado", "success");
+        window.eliminarPago = async function(id) {
+            if (confirm("¿Eliminar?")) {
+                await deleteDoc(doc(db, "proyectos/aguas-verdes-usag-2026/pagos", id));
+                await window.cargarDatos();
+                window.actualizarVistas();
+            }
+        };
+
+        window.eliminarGasto = async function(id) {
+            if (confirm("¿Eliminar?")) {
+                await deleteDoc(doc(db, "proyectos/aguas-verdes-usag-2026/gastos", id));
+                await window.cargarDatos();
+                window.actualizarVistas();
+            }
+        };
+    </script>
+
+    <script>
+        function rellenarSelectAlumnas() {
+            const select = document.getElementById("pagoAlumna");
+            const ALUMNAS = [
+                { nombre: "Arocas, Guillermina", dni: "54214993" },
+                { nombre: "Bazzana, Sofía", dni: "54417252" },
+                { nombre: "Gastaldi, Indiana", dni: "53058354" },
+                { nombre: "Hasperué, Sofía", dni: "50688236" },
+                { nombre: "Gutiérrez Antiqueo, María Luz", dni: "55583300" },
+                { nombre: "Arce Medina, Oriana", dni: "54067969" },
+                { nombre: "Suñiga Zambrano, Morena Candela", dni: "52057875" },
+                { nombre: "Galosi, Zoe", dni: "52917119" },
+                { nombre: "Bustamante, Alina Avril", dni: "54602148" }
+            ];
+            ALUMNAS.forEach(a => {
+                const option = document.createElement("option");
+                option.value = a.nombre;
+                option.textContent = a.nombre;
+                select.appendChild(option);
+            });
         }
 
-        // Eliminar pago
-        async function eliminarPago(id) {
-            if (confirm("¿Eliminar este pago?")) {
-                app.pagos = app.pagos.filter(p => p.id !== id);
-                await guardarDatos();
-                actualizarVistas();
-                mostrarMensaje("Pago eliminado", "success");
-            }
-        }
+        window.setFechahoy = function() {
+            const hoy = new Date().toISOString().split("T")[0];
+            document.getElementById("pagoFecha").value = hoy;
+            document.getElementById("gastoFecha").value = hoy;
+        };
 
-        // Eliminar gasto
-        async function eliminarGasto(id) {
-            if (confirm("¿Eliminar este gasto?")) {
-                app.gastos = app.gastos.filter(g => g.id !== id);
-                await guardarDatos();
-                actualizarVistas();
-                mostrarMensaje("Gasto eliminado", "success");
-            }
-        }
+        window.actualizarMonto = function() {
+            const cuota = document.getElementById("pagoCuota").value;
+            const montoInput = document.getElementById("pagoMonto");
+            if (cuota === "Seña 1") montoInput.value = "250000";
+            else if (cuota === "Seña 2") montoInput.value = "150000";
+        };
 
-        // Calcular totales
-        function calcularTotales(alumna) {
-            const pagosDeLaAlumna = app.pagos.filter(p => p.alumna === alumna);
+        window.abrirModalPago = function() {
+            document.getElementById("modalPago").classList.add("active");
+        };
+
+        window.cerrarModalPago = function() {
+            document.getElementById("modalPago").classList.remove("active");
+        };
+
+        window.abrirModalGasto = function() {
+            document.getElementById("modalGasto").classList.add("active");
+        };
+
+        window.cerrarModalGasto = function() {
+            document.getElementById("modalGasto").classList.remove("active");
+        };
+
+        window.calcularTotales = function(alumna) {
+            const pagosDeLaAlumna = window.appData.pagos.filter(p => p.alumna === alumna);
             const total = pagosDeLaAlumna.reduce((sum, p) => sum + (p.monto || 0), 0);
             const faltante = 400000 - total;
             return {
@@ -697,76 +609,62 @@
                 faltante: Math.max(0, faltante),
                 estado: faltante <= 0 ? "al-dia" : "atrasada"
             };
-        }
+        };
 
-        // Actualizar dashboard
-        function actualizarDashboard() {
-            const totalRecaudado = app.pagos.reduce((sum, p) => sum + p.monto, 0);
-            const totalGastado = app.gastos.reduce((sum, g) => sum + g.monto, 0);
-            const balance = totalRecaudado - totalGastado;
+        window.actualizarVistas = function() {
+            const ALUMNAS = [
+                { nombre: "Arocas, Guillermina", dni: "54214993" },
+                { nombre: "Bazzana, Sofía", dni: "54417252" },
+                { nombre: "Gastaldi, Indiana", dni: "53058354" },
+                { nombre: "Hasperué, Sofía", dni: "50688236" },
+                { nombre: "Gutiérrez Antiqueo, María Luz", dni: "55583300" },
+                { nombre: "Arce Medina, Oriana", dni: "54067969" },
+                { nombre: "Suñiga Zambrano, Morena Candela", dni: "52057875" },
+                { nombre: "Galosi, Zoe", dni: "52917119" },
+                { nombre: "Bustamante, Alina Avril", dni: "54602148" }
+            ];
+
+            const totalRecaudado = window.appData.pagos.reduce((sum, p) => sum + (p.monto || 0), 0);
+            const totalGastado = window.appData.gastos.reduce((sum, g) => sum + (g.monto || 0), 0);
 
             document.getElementById("totalRecaudado").textContent = "$" + totalRecaudado.toLocaleString("es-AR");
             document.getElementById("totalGastado").textContent = "$" + totalGastado.toLocaleString("es-AR");
-            document.getElementById("balance").textContent = "$" + balance.toLocaleString("es-AR");
-            document.getElementById("cantAlumnas").textContent = ALUMNAS.length;
+            document.getElementById("balance").textContent = "$" + (totalRecaudado - totalGastado).toLocaleString("es-AR");
 
-            const resumen = document.getElementById("resumenAlumnas");
-            resumen.innerHTML = ALUMNAS.map(a => {
-                const totales = calcularTotales(a.nombre);
+            document.getElementById("resumenAlumnas").innerHTML = ALUMNAS.map(a => {
+                const totales = window.calcularTotales(a.nombre);
                 return `
-                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+                    <div class="info-box">
                         <h4>${a.nombre}</h4>
-                        <p style="font-size: 13px; color: #666; margin-top: 8px;">Pagado: <strong>$${totales.pagado.toLocaleString("es-AR")}</strong></p>
-                        <p style="font-size: 13px; color: #666;">Faltante: <strong>$${totales.faltante.toLocaleString("es-AR")}</strong></p>
-                        <p style="margin-top: 8px;"><span class="status ${totales.estado}">${totales.estado}</span></p>
+                        <p style="font-size: 13px; margin-top: 8px;">Pagado: <strong>$${totales.pagado.toLocaleString("es-AR")}</strong></p>
+                        <p style="font-size: 13px;">Faltante: <strong>$${totales.faltante.toLocaleString("es-AR")}</strong></p>
+                        <p><span class="status ${totales.estado}">${totales.estado}</span></p>
                     </div>
                 `;
             }).join("");
-        }
 
-        // Actualizar tabla de pagos
-        function actualizarTablaPagos() {
-            const tabla = document.getElementById("tablaPagos");
-            tabla.innerHTML = app.pagos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).map(p => `
+            document.getElementById("tablaPagos").innerHTML = window.appData.pagos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).map(p => `
                 <tr>
                     <td>${new Date(p.fecha).toLocaleDateString("es-AR")}</td>
                     <td>${p.alumna}</td>
                     <td>${p.cuota}</td>
                     <td>$${p.monto.toLocaleString("es-AR")}</td>
-                    <td>
-                        <div class="actions">
-                            <button class="secondary" onclick="alert('Editar en progreso')">Editar</button>
-                            <button class="delete" onclick="eliminarPago('${p.id}')">Eliminar</button>
-                        </div>
-                    </td>
+                    <td><button class="delete" onclick="window.eliminarPago('${p.id}')">Eliminar</button></td>
                 </tr>
             `).join("");
-        }
 
-        // Actualizar tabla de gastos
-        function actualizarTablaGastos() {
-            const tabla = document.getElementById("tablaGastos");
-            tabla.innerHTML = app.gastos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).map(g => `
+            document.getElementById("tablaGastos").innerHTML = window.appData.gastos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).map(g => `
                 <tr>
                     <td>${new Date(g.fecha).toLocaleDateString("es-AR")}</td>
                     <td>${g.concepto}</td>
                     <td>${g.categoria}</td>
                     <td>$${g.monto.toLocaleString("es-AR")}</td>
-                    <td>
-                        <div class="actions">
-                            <button class="secondary" onclick="alert('Editar en progreso')">Editar</button>
-                            <button class="delete" onclick="eliminarGasto('${g.id}')">Eliminar</button>
-                        </div>
-                    </td>
+                    <td><button class="delete" onclick="window.eliminarGasto('${g.id}')">Eliminar</button></td>
                 </tr>
             `).join("");
-        }
 
-        // Actualizar tabla de alumnas
-        function actualizarTablaAlumnas() {
-            const tabla = document.getElementById("tablaAlumnas");
-            tabla.innerHTML = ALUMNAS.map(a => {
-                const totales = calcularTotales(a.nombre);
+            document.getElementById("tablaAlumnas").innerHTML = ALUMNAS.map(a => {
+                const totales = window.calcularTotales(a.nombre);
                 return `
                     <tr>
                         <td>${a.nombre}</td>
@@ -778,51 +676,51 @@
                     </tr>
                 `;
             }).join("");
-        }
+        };
 
-        // Actualizar todas las vistas
-        function actualizarVistas() {
-            actualizarDashboard();
-            actualizarTablaPagos();
-            actualizarTablaGastos();
-            actualizarTablaAlumnas();
-        }
-
-        // Cambiar tab
-        function cambiarTab(tabName) {
+        window.cambiarTab = function(button, tabName) {
             document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
             document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-
             document.getElementById(tabName).classList.add("active");
-            event.target.classList.add("active");
-        }
+            button.classList.add("active");
+        };
 
-        // Mostrar mensaje
-        function mostrarMensaje(texto, tipo) {
+        window.mostrarMensaje = function(texto, tipo) {
             const div = document.getElementById("message");
             div.innerHTML = `<div class="alert ${tipo}">${texto}</div>`;
             setTimeout(() => { div.innerHTML = ""; }, 3000);
-        }
+        };
 
-        // Exportar JSON
-        function exportarJSON() {
-            const totalRecaudado = app.pagos.reduce((sum, p) => sum + p.monto, 0);
-            const totalGastado = app.gastos.reduce((sum, g) => sum + g.monto, 0);
+        window.exportarJSON = function() {
+            const ALUMNAS = [
+                { nombre: "Arocas, Guillermina", dni: "54214993" },
+                { nombre: "Bazzana, Sofía", dni: "54417252" },
+                { nombre: "Gastaldi, Indiana", dni: "53058354" },
+                { nombre: "Hasperué, Sofía", dni: "50688236" },
+                { nombre: "Gutiérrez Antiqueo, María Luz", dni: "55583300" },
+                { nombre: "Arce Medina, Oriana", dni: "54067969" },
+                { nombre: "Suñiga Zambrano, Morena Candela", dni: "52057875" },
+                { nombre: "Galosi, Zoe", dni: "52917119" },
+                { nombre: "Bustamante, Alina Avril", dni: "54602148" }
+            ];
+
+            const totalRecaudado = window.appData.pagos.reduce((sum, p) => sum + (p.monto || 0), 0);
+            const totalGastado = window.appData.gastos.reduce((sum, g) => sum + (g.monto || 0), 0);
 
             const data = {
                 metadata: {
                     app: "Viaje Aguas Verdes USAG 2026",
                     exportado: new Date().toLocaleString("es-AR"),
                     totalAlumnas: ALUMNAS.length,
-                    totalPagos: app.pagos.length,
-                    totalGastos: app.gastos.length,
+                    totalPagos: window.appData.pagos.length,
+                    totalGastos: window.appData.gastos.length,
                     totalRecaudado,
                     totalGastado,
                     balance: totalRecaudado - totalGastado
                 },
                 alumnas: ALUMNAS,
-                pagos: app.pagos,
-                gastos: app.gastos
+                pagos: window.appData.pagos,
+                gastos: window.appData.gastos
             };
 
             const json = JSON.stringify(data, null, 2);
@@ -832,10 +730,7 @@
             a.href = url;
             a.download = `aguas-verdes-usag-${new Date().toISOString().split("T")[0]}.json`;
             a.click();
-        }
-
-        // Iniciar
-        window.addEventListener("load", inicializar);
+        };
     </script>
 </body>
 </html>
