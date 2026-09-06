@@ -62,11 +62,6 @@
             font-weight: bold;
             color: #1f2937;
         }
-        .card .subtitle {
-            font-size: 12px;
-            color: #999;
-            margin-top: 8px;
-        }
         .section-title {
             font-size: 18px;
             font-weight: 600;
@@ -229,19 +224,21 @@
             background: white;
             padding: 30px;
             border-radius: 8px;
-            max-width: 500px;
+            max-width: 700px;
             width: 90%;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
         }
         .modal-header {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .modal-header h2 {
-            font-size: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
         }
         .close-button {
             background: transparent;
@@ -252,6 +249,24 @@
             padding: 0;
             width: auto;
         }
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .form-section:last-child {
+            border-bottom: none;
+        }
+        .form-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
         .form-group {
             margin-bottom: 15px;
         }
@@ -259,7 +274,12 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 13px;
+            color: #1f2937;
+        }
+        label.required::after {
+            content: " *";
+            color: #dc3545;
         }
         input, select, textarea {
             width: 100%;
@@ -274,6 +294,66 @@
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .radio-option input[type="radio"] {
+            width: auto;
+            margin-top: 3px;
+            cursor: pointer;
+        }
+        .radio-option label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 400;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .checkbox-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .checkbox-option input[type="checkbox"] {
+            width: auto;
+            margin-top: 3px;
+            cursor: pointer;
+        }
+        .checkbox-option label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 400;
+        }
+        .required-section {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .required-section h4 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
         button {
             background: #667eea;
             color: white;
@@ -284,6 +364,7 @@
             font-size: 14px;
             font-weight: 600;
             transition: background 0.3s;
+            flex: 1;
         }
         button:hover {
             background: #5568d3;
@@ -292,9 +373,11 @@
             background: #6c757d;
             padding: 6px 12px;
             font-size: 12px;
+            flex: none;
         }
         button.delete {
             background: #dc3545;
+            flex: none;
         }
         .actions {
             display: flex;
@@ -334,6 +417,15 @@
             font-size: 20px;
             font-weight: bold;
             color: #1f2937;
+        }
+        @media (max-width: 768px) {
+            .summary-boxes {
+                grid-template-columns: 1fr;
+            }
+            .modal-content {
+                max-width: 95%;
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -417,6 +509,7 @@
                             <th>Alumna</th>
                             <th>Cuota</th>
                             <th>Monto</th>
+                            <th>Entrega</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -468,38 +561,103 @@
     <div id="modalPago" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalPagoTitle">Agregar Pago</h2>
+                <h2 id="modalPagoTitle">📝 Registrar Nuevo Pago</h2>
                 <button class="close-button" onclick="cerrarModalPago()">×</button>
             </div>
-            <div class="form-group">
-                <label>Alumna *</label>
-                <select id="pagoAlumna"></select>
+
+            <!-- DATOS BÁSICOS -->
+            <div class="form-section">
+                <div class="form-section-title">📋 Datos del Pago</div>
+                
+                <div class="form-group">
+                    <label class="required">Alumna</label>
+                    <select id="pagoAlumna"></select>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Cuota</label>
+                    <select id="pagoCuota" onchange="actualizarMonto()">
+                        <option value="">Selecciona una cuota</option>
+                        <option value="Seña 1">Seña 1 - $250.000</option>
+                        <option value="Seña 2">Seña 2 - $150.000</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Monto (puede modificarse)</label>
+                    <input type="number" id="pagoMonto" placeholder="Ingresá el monto" />
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Fecha del Pago</label>
+                    <input type="date" id="pagoFecha" />
+                </div>
             </div>
-            <div class="form-group">
-                <label>Cuota *</label>
-                <select id="pagoCuota" onchange="actualizarMonto()">
-                    <option value="">Selecciona</option>
-                    <option value="Seña 1">Seña 1 - $250.000</option>
-                    <option value="Seña 2">Seña 2 - $150.000</option>
-                </select>
+
+            <!-- MODALIDAD DE ENTREGA -->
+            <div class="form-section">
+                <div class="form-section-title">🔄 ¿Cómo se entregó?</div>
+                
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="entregaProf" name="modalidadEntrega" value="profesora" checked onchange="toggleEntrega()">
+                        <label for="entregaProf">La familia lo dio a la <strong>profesora</strong>, quién me lo entregó a mí</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="entregaDirecto" name="modalidadEntrega" value="directo" onchange="toggleEntrega()">
+                        <label for="entregaDirecto">La familia me lo entregó <strong>directamente a mí</strong></label>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Profesora</label>
+                    <select id="pagoProfesora">
+                        <option value="">Selecciona</option>
+                        <option value="Sabrina">Sabrina</option>
+                        <option value="Mailén">Mailén</option>
+                        <option value="Milagros">Milagros</option>
+                        <option value="Catalina">Catalina</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Monto *</label>
-                <input type="number" id="pagoMonto" />
+
+            <!-- CONTACTO -->
+            <div class="form-section">
+                <div class="form-section-title">👤 Contacto</div>
+                
+                <div class="form-group">
+                    <label>Padre/Madre (opcional)</label>
+                    <input type="text" id="pagoContacto" placeholder="Ej: María González" />
+                </div>
+
+                <div class="form-group">
+                    <label>Observaciones (opcional)</label>
+                    <textarea id="pagoObs" rows="3" placeholder="Notas adicionales..."></textarea>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Fecha *</label>
-                <input type="date" id="pagoFecha" />
+
+            <!-- CONFIRMACIÓN -->
+            <div class="form-section">
+                <div class="form-section-title required-section" style="border: none;">
+                    ⚠️ CONFIRMACIÓN OBLIGATORIA
+                </div>
+                
+                <div class="checkbox-group" style="margin-top: 12px;">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="confirmProf" />
+                        <label for="confirmProf">La profesora confirma que entregó el dinero</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="confirmJose" />
+                        <label for="confirmJose">José María confirma que recibió el dinero</label>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Entregado por</label>
-                <input type="text" id="pagoEntregadoPor" />
+
+            <!-- BOTONES -->
+            <div class="button-group">
+                <button onclick="guardarPago()" id="btnGuardarPago">✓ Guardar Pago</button>
             </div>
-            <div class="form-group">
-                <label>Observaciones</label>
-                <textarea id="pagoObs" rows="3"></textarea>
-            </div>
-            <button onclick="guardarPago()" style="width: 100%;" id="btnGuardarPago">Registrar Pago</button>
         </div>
     </div>
 
@@ -600,16 +758,28 @@
             const cuota = document.getElementById("pagoCuota").value;
             const monto = parseInt(document.getElementById("pagoMonto").value);
             const fecha = document.getElementById("pagoFecha").value;
-            const entregadoPor = document.getElementById("pagoEntregadoPor").value;
+            const modalidadEntrega = document.querySelector('input[name="modalidadEntrega"]:checked').value;
+            const profesora = document.getElementById("pagoProfesora").value;
+            const contacto = document.getElementById("pagoContacto").value;
             const obs = document.getElementById("pagoObs").value;
+            const confirmProf = document.getElementById("confirmProf").checked;
+            const confirmJose = document.getElementById("confirmJose").checked;
 
             if (!alumna || !cuota || !monto || !fecha) {
                 window.mostrarMensaje("Completa campos obligatorios", "error");
                 return;
             }
 
+            if (!confirmProf || !confirmJose) {
+                window.mostrarMensaje("Debe confirmar ambas opciones", "error");
+                return;
+            }
+
             try {
-                const datos = { alumna, cuota, monto, fecha, entregadoPor, observaciones: obs };
+                const datos = { 
+                    alumna, cuota, monto, fecha, modalidadEntrega, profesora, contacto, 
+                    observaciones: obs, confirmProf, confirmJose 
+                };
 
                 if (window.appData.editandoPagoId) {
                     await updateDoc(doc(db, "proyectos/aguas-verdes-usag-2026/pagos", window.appData.editandoPagoId), datos);
@@ -690,8 +860,16 @@
             document.getElementById("pagoCuota").value = pago.cuota;
             document.getElementById("pagoMonto").value = pago.monto;
             document.getElementById("pagoFecha").value = pago.fecha;
-            document.getElementById("pagoEntregadoPor").value = pago.entregadoPor || "";
+            document.getElementById("pagoProfesora").value = pago.profesora || "";
+            document.getElementById("pagoContacto").value = pago.contacto || "";
             document.getElementById("pagoObs").value = pago.observaciones || "";
+            if (pago.modalidadEntrega === "directo") {
+                document.getElementById("entregaDirecto").checked = true;
+            } else {
+                document.getElementById("entregaProf").checked = true;
+            }
+            document.getElementById("confirmProf").checked = pago.confirmProf || false;
+            document.getElementById("confirmJose").checked = pago.confirmJose || false;
             document.getElementById("modalPagoTitle").textContent = "Editar Pago";
             document.getElementById("btnGuardarPago").textContent = "Actualizar Pago";
             document.getElementById("modalPago").classList.add("active");
@@ -747,16 +925,32 @@
             else if (cuota === "Seña 2") montoInput.value = "150000";
         };
 
+        window.toggleEntrega = function() {
+            const profesora = document.getElementById("pagoProfesora");
+            if (document.getElementById("entregaProf").checked) {
+                profesora.disabled = false;
+                profesora.focus();
+            } else {
+                profesora.disabled = true;
+                profesora.value = "";
+            }
+        };
+
         window.abrirModalPago = function() {
             window.appData.editandoPagoId = null;
-            document.getElementById("modalPagoTitle").textContent = "Agregar Pago";
-            document.getElementById("btnGuardarPago").textContent = "Registrar Pago";
+            document.getElementById("modalPagoTitle").textContent = "📝 Registrar Nuevo Pago";
+            document.getElementById("btnGuardarPago").textContent = "✓ Guardar Pago";
             document.getElementById("pagoAlumna").value = "";
             document.getElementById("pagoCuota").value = "";
             document.getElementById("pagoMonto").value = "";
-            document.getElementById("pagoEntregadoPor").value = "";
+            document.getElementById("pagoProfesora").value = "";
+            document.getElementById("pagoContacto").value = "";
             document.getElementById("pagoObs").value = "";
+            document.getElementById("entregaProf").checked = true;
+            document.getElementById("confirmProf").checked = false;
+            document.getElementById("confirmJose").checked = false;
             document.getElementById("modalPago").classList.add("active");
+            window.toggleEntrega();
         };
 
         window.cerrarModalPago = function() {
@@ -857,9 +1051,10 @@
                     <td>${p.alumna}</td>
                     <td>${p.cuota}</td>
                     <td>$${p.monto.toLocaleString("es-AR")}</td>
+                    <td>${p.modalidadEntrega === 'directo' ? 'Directa' : 'Profesora'}</td>
                     <td>
                         <div class="actions">
-                            <button class="secondary" onclick="window.editarPago({id: '${p.id}', alumna: '${p.alumna}', cuota: '${p.cuota}', monto: ${p.monto}, fecha: '${p.fecha}', entregadoPor: '${p.entregadoPor || ''}', observaciones: '${p.observaciones || ''}'})">Editar</button>
+                            <button class="secondary" onclick="window.editarPago({id: '${p.id}', alumna: '${p.alumna}', cuota: '${p.cuota}', monto: ${p.monto}, fecha: '${p.fecha}', modalidadEntrega: '${p.modalidadEntrega || 'profesora'}', profesora: '${p.profesora || ''}', contacto: '${p.contacto || ''}', observaciones: '${p.observaciones || ''}', confirmProf: ${p.confirmProf || false}, confirmJose: ${p.confirmJose || false}})">Editar</button>
                             <button class="delete" onclick="window.eliminarPago('${p.id}')">Eliminar</button>
                         </div>
                     </td>
