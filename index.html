@@ -216,63 +216,66 @@
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            overflow-y: auto;
         }
         .modal.active {
             display: flex;
         }
         .modal-content {
             background: white;
-            padding: 30px;
+            padding: 40px;
             border-radius: 8px;
-            max-width: 700px;
-            width: 90%;
-            max-height: 85vh;
-            overflow-y: auto;
+            max-width: 900px;
+            width: 95%;
+            margin: 20px auto;
         }
         .modal-header {
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 20px;
         }
         .modal-header h2 {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 600;
             color: #1f2937;
         }
         .close-button {
             background: transparent;
             color: #999;
-            font-size: 24px;
+            font-size: 28px;
             border: none;
             cursor: pointer;
             padding: 0;
             width: auto;
+            line-height: 1;
+        }
+        .close-button:hover {
+            color: #333;
         }
         .form-section {
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .form-section:last-child {
-            border-bottom: none;
+            margin-bottom: 30px;
+            padding: 0;
         }
         .form-section-title {
             font-size: 13px;
             font-weight: 600;
             text-transform: uppercase;
             color: #667eea;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             display: flex;
             align-items: center;
             gap: 8px;
+            letter-spacing: 0.5px;
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             font-weight: 500;
             font-size: 13px;
             color: #1f2937;
@@ -283,11 +286,12 @@
         }
         input, select, textarea {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
             border-radius: 5px;
             font-size: 14px;
             font-family: inherit;
+            background: white;
         }
         input:focus, select:focus, textarea:focus {
             outline: none;
@@ -297,50 +301,66 @@
         .radio-group {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
         .radio-option {
             display: flex;
             align-items: flex-start;
-            gap: 10px;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 5px;
+            cursor: pointer;
         }
         .radio-option input[type="radio"] {
-            width: auto;
-            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
             cursor: pointer;
+            flex-shrink: 0;
         }
         .radio-option label {
             margin: 0;
             cursor: pointer;
             font-weight: 400;
+            font-size: 14px;
         }
         .checkbox-group {
             display: flex;
             flex-direction: column;
             gap: 12px;
+            padding: 15px;
+            background: #fffbf0;
+            border-left: 4px solid #ffc107;
+            border-radius: 5px;
         }
         .checkbox-option {
             display: flex;
             align-items: flex-start;
-            gap: 10px;
+            gap: 12px;
         }
         .checkbox-option input[type="checkbox"] {
-            width: auto;
-            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
             cursor: pointer;
+            flex-shrink: 0;
         }
         .checkbox-option label {
             margin: 0;
             cursor: pointer;
             font-weight: 400;
+            font-size: 14px;
         }
-        .required-section {
+        .required-alert {
             background: #fff3cd;
+            border: 1px solid #ffc107;
             border-left: 4px solid #ffc107;
             padding: 15px;
             border-radius: 5px;
+            margin-bottom: 20px;
         }
-        .required-section h4 {
+        .required-alert h4 {
             font-size: 12px;
             font-weight: 600;
             color: #856404;
@@ -352,7 +372,7 @@
         .button-group {
             display: flex;
             gap: 10px;
-            margin-top: 25px;
+            margin-top: 30px;
         }
         button {
             background: #667eea;
@@ -423,7 +443,6 @@
                 grid-template-columns: 1fr;
             }
             .modal-content {
-                max-width: 95%;
                 padding: 20px;
             }
         }
@@ -577,7 +596,7 @@
                 <div class="form-group">
                     <label class="required">Cuota</label>
                     <select id="pagoCuota" onchange="actualizarMonto()">
-                        <option value="">Selecciona una cuota</option>
+                        <option value="">Primero selecciona la alumna</option>
                         <option value="Seña 1">Seña 1 - $250.000</option>
                         <option value="Seña 2">Seña 2 - $150.000</option>
                     </select>
@@ -609,14 +628,11 @@
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-top: 15px;">
+                <div class="form-group" style="margin-top: 18px;">
                     <label>Profesora</label>
                     <select id="pagoProfesora">
                         <option value="">Selecciona</option>
-                        <option value="Sabrina">Sabrina</option>
-                        <option value="Mailén">Mailén</option>
                         <option value="Milagros">Milagros</option>
-                        <option value="Catalina">Catalina</option>
                     </select>
                 </div>
             </div>
@@ -638,11 +654,8 @@
 
             <!-- CONFIRMACIÓN -->
             <div class="form-section">
-                <div class="form-section-title required-section" style="border: none;">
-                    ⚠️ CONFIRMACIÓN OBLIGATORIA
-                </div>
-                
-                <div class="checkbox-group" style="margin-top: 12px;">
+                <div class="checkbox-group">
+                    <h4 style="margin: 0 0 12px 0; font-size: 12px; font-weight: 600; color: #856404;">⚠️ CONFIRMACIÓN OBLIGATORIA</h4>
                     <div class="checkbox-option">
                         <input type="checkbox" id="confirmProf" />
                         <label for="confirmProf">La profesora confirma que entregó el dinero</label>
@@ -658,6 +671,12 @@
             <div class="button-group">
                 <button onclick="guardarPago()" id="btnGuardarPago">✓ Guardar Pago</button>
             </div>
+            <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-top: 15px; text-align: center; display: none;" id="successPago">
+                ✓ Pago guardado correctamente
+            </div>
+            <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin-top: 15px; text-align: center; display: none;" id="errorPago">
+                ⚠ Debes completar ambas confirmaciones para guardar
+            </div>
         </div>
     </div>
 
@@ -665,37 +684,57 @@
     <div id="modalGasto" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalGastoTitle">Agregar Gasto</h2>
+                <h2 id="modalGastoTitle">💰 Registrar Nuevo Gasto</h2>
                 <button class="close-button" onclick="cerrarModalGasto()">×</button>
             </div>
-            <div class="form-group">
-                <label>Concepto *</label>
-                <input type="text" id="gastoConcepto" />
+
+            <div class="form-section">
+                <div class="form-section-title">📋 Datos del Gasto</div>
+                
+                <div class="form-group">
+                    <label class="required">Concepto</label>
+                    <input type="text" id="gastoConcepto" placeholder="Ingresá el concepto del gasto" />
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Categoría</label>
+                    <select id="gastoCategoria">
+                        <option value="">Selecciona una categoría</option>
+                        <option value="🏠 Alojamiento">🏠 Alojamiento</option>
+                        <option value="🍽️ Comidas">🍽️ Comidas</option>
+                        <option value="🚌 Transporte">🚌 Transporte</option>
+                        <option value="🧾 Administrativo">🧾 Administrativo</option>
+                        <option value="📋 Otros">📋 Otros</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Monto</label>
+                    <input type="number" id="gastoMonto" placeholder="Ingresá el monto" />
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Fecha del Gasto</label>
+                    <input type="date" id="gastoFecha" />
+                </div>
             </div>
-            <div class="form-group">
-                <label>Categoría *</label>
-                <select id="gastoCategoria">
-                    <option value="">Selecciona</option>
-                    <option value="🏠 Alojamiento">🏠 Alojamiento</option>
-                    <option value="🍽️ Comidas">🍽️ Comidas</option>
-                    <option value="🚌 Transporte">🚌 Transporte</option>
-                    <option value="🧾 Administrativo">🧾 Administrativo</option>
-                    <option value="📋 Otros">📋 Otros</option>
-                </select>
+
+            <div class="form-section">
+                <div class="form-section-title">📝 Observaciones</div>
+                
+                <div class="form-group">
+                    <label>Notas (opcional)</label>
+                    <textarea id="gastoObs" rows="3" placeholder="Notas adicionales sobre el gasto..."></textarea>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Monto *</label>
-                <input type="number" id="gastoMonto" />
+
+            <!-- BOTONES -->
+            <div class="button-group">
+                <button onclick="guardarGasto()" id="btnGuardarGasto">✓ Guardar Gasto</button>
             </div>
-            <div class="form-group">
-                <label>Fecha *</label>
-                <input type="date" id="gastoFecha" />
+            <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-top: 15px; text-align: center; display: none;" id="successGasto">
+                ✓ Gasto guardado correctamente
             </div>
-            <div class="form-group">
-                <label>Observaciones</label>
-                <textarea id="gastoObs" rows="3"></textarea>
-            </div>
-            <button onclick="guardarGasto()" style="width: 100%;" id="btnGuardarGasto">Registrar Gasto</button>
         </div>
     </div>
 
@@ -771,7 +810,8 @@
             }
 
             if (!confirmProf || !confirmJose) {
-                window.mostrarMensaje("Debe confirmar ambas opciones", "error");
+                document.getElementById("errorPago").style.display = "block";
+                setTimeout(() => { document.getElementById("errorPago").style.display = "none"; }, 3000);
                 return;
             }
 
@@ -783,10 +823,8 @@
 
                 if (window.appData.editandoPagoId) {
                     await updateDoc(doc(db, "proyectos/aguas-verdes-usag-2026/pagos", window.appData.editandoPagoId), datos);
-                    window.mostrarMensaje("Pago actualizado ✓", "success");
                 } else {
                     await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/pagos"), datos);
-                    window.mostrarMensaje("Pago registrado ✓", "success");
                 }
                 
                 window.cerrarModalPago();
@@ -814,10 +852,8 @@
 
                 if (window.appData.editandoGastoId) {
                     await updateDoc(doc(db, "proyectos/aguas-verdes-usag-2026/gastos", window.appData.editandoGastoId), datos);
-                    window.mostrarMensaje("Gasto actualizado ✓", "success");
                 } else {
                     await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"), datos);
-                    window.mostrarMensaje("Gasto registrado ✓", "success");
                 }
                 
                 window.cerrarModalGasto();
@@ -870,9 +906,10 @@
             }
             document.getElementById("confirmProf").checked = pago.confirmProf || false;
             document.getElementById("confirmJose").checked = pago.confirmJose || false;
-            document.getElementById("modalPagoTitle").textContent = "Editar Pago";
+            document.getElementById("modalPagoTitle").textContent = "✏️ Editar Pago";
             document.getElementById("btnGuardarPago").textContent = "Actualizar Pago";
             document.getElementById("modalPago").classList.add("active");
+            window.toggleEntrega();
         };
 
         window.editarGasto = function(gasto) {
@@ -882,7 +919,7 @@
             document.getElementById("gastoMonto").value = gasto.monto;
             document.getElementById("gastoFecha").value = gasto.fecha;
             document.getElementById("gastoObs").value = gasto.observaciones || "";
-            document.getElementById("modalGastoTitle").textContent = "Editar Gasto";
+            document.getElementById("modalGastoTitle").textContent = "✏️ Editar Gasto";
             document.getElementById("btnGuardarGasto").textContent = "Actualizar Gasto";
             document.getElementById("modalGasto").classList.add("active");
         };
@@ -929,7 +966,6 @@
             const profesora = document.getElementById("pagoProfesora");
             if (document.getElementById("entregaProf").checked) {
                 profesora.disabled = false;
-                profesora.focus();
             } else {
                 profesora.disabled = true;
                 profesora.value = "";
@@ -949,6 +985,7 @@
             document.getElementById("entregaProf").checked = true;
             document.getElementById("confirmProf").checked = false;
             document.getElementById("confirmJose").checked = false;
+            document.getElementById("errorPago").style.display = "none";
             document.getElementById("modalPago").classList.add("active");
             window.toggleEntrega();
         };
@@ -959,12 +996,13 @@
 
         window.abrirModalGasto = function() {
             window.appData.editandoGastoId = null;
-            document.getElementById("modalGastoTitle").textContent = "Agregar Gasto";
-            document.getElementById("btnGuardarGasto").textContent = "Registrar Gasto";
+            document.getElementById("modalGastoTitle").textContent = "💰 Registrar Nuevo Gasto";
+            document.getElementById("btnGuardarGasto").textContent = "✓ Guardar Gasto";
             document.getElementById("gastoConcepto").value = "";
             document.getElementById("gastoCategoria").value = "";
             document.getElementById("gastoMonto").value = "";
             document.getElementById("gastoObs").value = "";
+            document.getElementById("successGasto").style.display = "none";
             document.getElementById("modalGasto").classList.add("active");
         };
 
