@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aguas Verdes USAG 2026</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+        .tab-button {
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .tab-button:hover {
+            color: #667eea;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            color: #667eea;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #2c3e50;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status.al-dia {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.atrasada {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        .actions button {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: #6c757d;
+        }
+        .actions button:hover {
+            background: #5a6268;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            font-size: 20px;
+        }
+        .close-button {
+            background: transparent;
+            color: #999;
+            font-size: 24px;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            width: auto;
+            padding: 4px 8px;
+        }
+        .close-button:hover {
+            color: #333;
+            background: transparent;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .export-buttons button {
+            font-size: 13px;
+            padding: 10px 16px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 16px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJPNnJZ4ZE6rL6x-IA2w9VDJLJMvWfYb0",
+            authDomain: "gimnasia-unlp.firebaseapp.com",
+            projectId: "gen-lang-client-02640914-425b1",
+            storageBucket: "gen-lang-client-02640914-425b1.appspot.com",
+            messagingSenderId: "1043206833619",
+            appId: "1:1043206833619:web:a74eef8c51906d23cef3f1"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const ALUMNAS_INICIALES = [
+            { nombre: "Arocas, Guillermina", profesora: "Milagros", dni: "54214993" },
+            { nombre: "Bazzana, Sofía", profesora: "Milagros", dni: "54417252" },
+            { nombre: "Gastaldi, Indiana", profesora: "Milagros", dni: "53058354" },
+            { nombre: "Hasperué, Sofía", profesora: "Milagros", dni: "50688236" },
+            { nombre: "Gutiérrez Antiqueo, María Luz", profesora: "Milagros", dni: "55583300" },
+            { nombre: "Arce Medina, Oriana", profesora: "Milagros", dni: "54067969" },
+            { nombre: "Suñiga Zambrano, Morena Candela", profesora: "Milagros", dni: "52057875" },
+            { nombre: "Galosi, Zoe", profesora: "Milagros", dni: "52917119" },
+            { nombre: "Bustamante, Alina Avril", profesora: "Milagros", dni: "54602148" }
+        ];
+
+        const CUOTAS = [
+            { nombre: "Seña 1", monto: 250000 },
+            { nombre: "Seña 2", monto: 150000 }
+        ];
+
+        let app = {
+            alumnas: [],
+            pagos: [],
+            gastos: [],
+            currentTab: "dashboard",
+            showModal: false,
+            modalType: null,
+            editingId: null
+        };
+
+        async function cargarDatos() {
+            try {
+                const docSnap = await db.collection("proyectos").doc("aguas-verdes-usag-2026").get();
+                
+                if (!docSnap.exists()) {
+                    const docData = {
+                        nombre: "Aguas Verdes 2026 - USAG",
+                        fechaInicio: "2026-10-01",
+                        fechaFin: "2026-10-04",
+                        creado: new Date(),
+                        alumnas: ALUMNAS_INICIALES,
+                        pagos: [],
+                        gastos: []
+                    };
+                    await db.collection("proyectos").doc("aguas-verdes-usag-2026").set(docData);
+                    app.alumnas = ALUMNAS_INICIALES;
+                    app.pagos = [];
+                    app.gastos = [];
+                } else {
+                    const data = docSnap.data();
+                    app.alumnas = data.alumnas || ALUMNAS_INICIALES;
+                    app.pagos = data.pagos || [];
+                    app.gastos = data.gastos || [];
+                }
+                
+                render();
+            } catch (error) {
+                console.error("Error cargando datos:", error);
+                document.getElementById("app").innerHTML = `<div class="container"><div class="alert error">Error: ${error.message}</div></div>`;
+            }
+        }
+
+        function guardarDatos() {
+            db.collection("proyectos").doc("aguas-verdes-usag-2026").update({
+                alumnas: app.alumnas,
+                pagos: app.pagos,
+                gastos: app.gastos
+            }).catch(err => console.error("Error guardando:", err));
+        }
+
+        function calcularTotales(alumna) {
+            const pagosDeLaAlumna = app.pagos.filter(p => p.alumna === alumna);
+            const total = pagosDeLaAlumna.reduce((sum, p) => sum + (p.monto || 0), 0);
+            const faltante = 400000 - total;
+            return {
+                pagado: total,
+                faltante: Math.max(0, faltante),
+                estado: faltante <= 0 ? "al-dia" : "atrasada"
+            };
+        }
+
+        function agregarPago() {
+            const alumna = document.getElementById("pago-alumna").value;
+            const cuota = document.getElementById("pago-cuota").value;
+            const monto = parseInt(document.getElementById("pago-monto").value);
+            const fecha = document.getElementById("pago-fecha").value;
+            const entregadoPor = document.getElementById("pago-entregadoPor").value;
+            const observaciones = document.getElementById("pago-obs").value;
+
+            if (!alumna || !cuota || !monto || !fecha) {
+                alert("Completa todos los campos obligatorios");
+                return;
+            }
+
+            const nuevoPago = {
+                id: app.editingId || "p" + Date.now(),
+                alumna,
+                cuota,
+                monto,
+                fecha,
+                entregadoPor,
+                observaciones,
+                confirmado: true
+            };
+
+            if (app.editingId) {
+                const idx = app.pagos.findIndex(p => p.id === app.editingId);
+                if (idx >= 0) app.pagos[idx] = nuevoPago;
+            } else {
+                app.pagos.push(nuevoPago);
+            }
+
+            guardarDatos();
+            cerrarModal();
+            render();
+        }
+
+        function agregarGasto() {
+            const concepto = document.getElementById("gasto-concepto").value;
+            const categoria = document.getElementById("gasto-categoria").value;
+            const monto = parseInt(document.getElementById("gasto-monto").value);
+            const fecha = document.getElementById("gasto-fecha").value;
+            const observaciones = document.getElementById("gasto-obs").value;
+
+            if (!concepto || !categoria || !monto || !fecha) {
+                alert("Completa todos los campos obligatorios");
+                return;
+            }
+
+            const nuevoGasto = {
+                id: app.editingId || "g" + Date.now(),
+                concepto,
+                categoria,
+                monto,
+                fecha,
+                observaciones
+            };
+
+            if (app.editingId) {
+                const idx = app.gastos.findIndex(g => g.id === app.editingId);
+                if (idx >= 0) app.gastos[idx] = nuevoGasto;
+            } else {
+                app.gastos.push(nuevoGasto);
+            }
+
+            guardarDatos();
+            cerrarModal();
+            render();
+        }
+
+        function eliminarPago(id) {
+            if (confirm("¿Eliminar este pago?")) {
+                app.pagos = app.pagos.filter(p => p.id !== id);
+                guardarDatos();
+                render();
+            }
+        }
+
+        function eliminarGasto(id) {
+            if (confirm("¿Eliminar este gasto?")) {
+                app.gastos = app.gastos.filter(g => g.id !== id);
+                guardarDatos();
+                render();
+            }
+        }
+
+        function abrirModalPago() {
+            app.modalType = "pago";
+            app.editingId = null;
+            app.showModal = true;
+            render();
+        }
+
+        function abrirModalGasto() {
+            app.modalType = "gasto";
+            app.editingId = null;
+            app.showModal = true;
+            render();
+        }
+
+        function cerrarModal() {
+            app.showModal = false;
+            app.modalType = null;
+            app.editingId = null;
+            render();
+        }
+
+        function exportarJSON() {
+            const totalRecaudado = app.pagos.reduce((sum, p) => sum + p.monto, 0);
+            const totalGastado = app.gastos.reduce((sum, g) => sum + g.monto, 0);
+
+            const data = {
+                metadata: {
+                    app: "Viaje Aguas Verdes USAG 2026",
+                    exportado: new Date().toLocaleString("es-AR"),
+                    totalAlumnas: app.alumnas.length,
+                    totalPagos: app.pagos.length,
+                    totalGastos: app.gastos.length,
+                    totalRecaudado,
+                    totalGastado,
+                    balance: totalRecaudado - totalGastado
+                },
+                alumnas: app.alumnas,
+                pagos: app.pagos,
+                gastos: app.gastos
+            };
+
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `aguas-verdes-usag-${new Date().toISOString().split("T")[0]}.json`;
+            a.click();
+        }
+
+        function render() {
+            const totalRecaudado = app.pagos.reduce((sum, p) => sum + p.monto, 0);
+            const totalGastado = app.gastos.reduce((sum, g) => sum + g.monto, 0);
+
+            let html = `
+                <header>
+                    <h1>🏊 Aguas Verdes 2026 - USAG</h1>
+                    <p>1 - 4 de Octubre | Prof. Milagros</p>
+                </header>
+
+                <div class="container">
+                    <div class="tabs">
+                        <button class="tab-button ${app.currentTab === "dashboard" ? "active" : ""}" onclick="app.currentTab='dashboard'; render()">Dashboard</button>
+                        <button class="tab-button ${app.currentTab === "pagos" ? "active" : ""}" onclick="app.currentTab='pagos'; render()">Pagos</button>
+                        <button class="tab-button ${app.currentTab === "gastos" ? "active" : ""}" onclick="app.currentTab='gastos'; render()">Gastos</button>
+                        <button class="tab-button ${app.currentTab === "alumnas" ? "active" : ""}" onclick="app.currentTab='alumnas'; render()">Alumnas</button>
+                    </div>
+
+                    <div class="section ${app.currentTab === "dashboard" ? "active" : ""}">
+                        <div class="export-buttons">
+                            <button onclick="exportarJSON()">📥 Exportar JSON</button>
+                        </div>
+
+                        <div class="dashboard">
+                            <div class="card">
+                                <h3>Total Recaudado</h3>
+                                <div class="value">$${totalRecaudado.toLocaleString("es-AR")}</div>
+                            </div>
+                            <div class="card">
+                                <h3>Total Gastado</h3>
+                                <div class="value">$${totalGastado.toLocaleString("es-AR")}</div>
+                            </div>
+                            <div class="card">
+                                <h3>Balance</h3>
+                                <div class="value" style="color: ${totalRecaudado - totalGastado >= 0 ? "#28a745" : "#dc3545"}">$${(totalRecaudado - totalGastado).toLocaleString("es-AR")}</div>
+                            </div>
+                            <div class="card">
+                                <h3>Alumnas</h3>
+                                <div class="value">${app.alumnas.length}</div>
+                            </div>
+                        </div>
+
+                        <h3 style="margin-bottom: 15px;">Resumen por Alumna</h3>
+                        ${app.alumnas.map(a => {
+                            const totales = calcularTotales(a.nombre);
+                            return `
+                                <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+                                    <h4>${a.nombre}</h4>
+                                    <p style="font-size: 13px; color: #666;">Pagado: <strong>$${totales.pagado.toLocaleString("es-AR")}</strong></p>
+                                    <p style="font-size: 13px; color: #666;">Faltante: <strong>$${totales.faltante.toLocaleString("es-AR")}</strong></p>
+                                    <p style="margin-top: 8px;"><span class="status ${totales.estado}">${totales.estado}</span></p>
+                                </div>
+                            `;
+                        }).join("")}
+                    </div>
+
+                    <div class="section ${app.currentTab === "pagos" ? "active" : ""}">
+                        <button onclick="abrirModalPago()" style="margin-bottom: 20px;">+ Agregar Pago</button>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Alumna</th>
+                                        <th>Cuota</th>
+                                        <th>Monto</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${app.pagos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).map(p => `
+                                        <tr>
+                                            <td>${new Date(p.fecha).toLocaleDateString("es-AR")}</td>
+                                            <td>${p.alumna}</td>
+                                            <td>${p.cuota}</td>
+                                            <td>$${p.monto.toLocaleString("es-AR")}</td>
+                                            <td>
+                                                <div class="actions">
+                                                    <button onclick="alert('Editar: ${p.id}')">Editar</button>
+                                                    <button onclick="eliminarPago('${p.id}')">Eliminar</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `).join("")}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="section ${app.currentTab === "gastos" ? "active" : ""}">
+                        <button onclick="abrirModalGasto()" style="margin-bottom: 20px;">+ Agregar Gasto</button>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Concepto</th>
+                                        <th>Categoría</th>
+                                        <th>Monto</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${app.gastos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).map(g => `
+                                        <tr>
+                                            <td>${new Date(g.fecha).toLocaleDateString("es-AR")}</td>
+                                            <td>${g.concepto}</td>
+                                            <td>${g.categoria}</td>
+                                            <td>$${g.monto.toLocaleString("es-AR")}</td>
+                                            <td>
+                                                <div class="actions">
+                                                    <button onclick="alert('Editar: ${g.id}')">Editar</button>
+                                                    <button onclick="eliminarGasto('${g.id}')">Eliminar</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `).join("")}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="section ${app.currentTab === "alumnas" ? "active" : ""}">
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>DNI</th>
+                                        <th>Profesora</th>
+                                        <th>Pagado</th>
+                                        <th>Faltante</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${app.alumnas.map(a => {
+                                        const totales = calcularTotales(a.nombre);
+                                        return `
+                                            <tr>
+                                                <td>${a.nombre}</td>
+                                                <td>${a.dni}</td>
+                                                <td>${a.profesora}</td>
+                                                <td>$${totales.pagado.toLocaleString("es-AR")}</td>
+                                                <td>$${totales.faltante.toLocaleString("es-AR")}</td>
+                                                <td><span class="status ${totales.estado}">${totales.estado}</span></td>
+                                            </tr>
+                                        `;
+                                    }).join("")}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                ${app.showModal ? `
+                    <div class="modal active">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2>${app.editingId ? "Editar" : "Agregar"} ${app.modalType === "pago" ? "Pago" : "Gasto"}</h2>
+                                <button class="close-button" onclick="cerrarModal()">×</button>
+                            </div>
+
+                            ${app.modalType === "pago" ? `
+                                <div class="form-group">
+                                    <label>Alumna *</label>
+                                    <select id="pago-alumna">
+                                        <option value="">Selecciona una alumna</option>
+                                        ${app.alumnas.map(a => `<option value="${a.nombre}">${a.nombre}</option>`).join("")}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Cuota *</label>
+                                    <select id="pago-cuota">
+                                        <option value="">Selecciona una cuota</option>
+                                        ${CUOTAS.map(c => `<option value="${c.nombre}">${c.nombre} - $${c.monto.toLocaleString("es-AR")}</option>`).join("")}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Monto *</label>
+                                    <input type="number" id="pago-monto" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Fecha *</label>
+                                    <input type="date" id="pago-fecha" value="${new Date().toISOString().split("T")[0]}" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Entregado por</label>
+                                    <input type="text" id="pago-entregadoPor" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Observaciones</label>
+                                    <textarea id="pago-obs"></textarea>
+                                </div>
+
+                                <button onclick="agregarPago()" style="width: 100%;">${app.editingId ? "Actualizar Pago" : "Registrar Pago"}</button>
+                            ` : `
+                                <div class="form-group">
+                                    <label>Concepto *</label>
+                                    <input type="text" id="gasto-concepto" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Categoría *</label>
+                                    <select id="gasto-categoria">
+                                        <option value="">Selecciona una categoría</option>
+                                        <option value="🏠 Alojamiento">🏠 Alojamiento</option>
+                                        <option value="🍽️ Comidas">🍽️ Comidas</option>
+                                        <option value="🚌 Transporte">🚌 Transporte</option>
+                                        <option value="🧾 Administrativo">🧾 Administrativo</option>
+                                        <option value="📋 Otros">📋 Otros</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Monto *</label>
+                                    <input type="number" id="gasto-monto" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Fecha *</label>
+                                    <input type="date" id="gasto-fecha" value="${new Date().toISOString().split("T")[0]}" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Observaciones</label>
+                                    <textarea id="gasto-obs"></textarea>
+                                </div>
+
+                                <button onclick="agregarGasto()" style="width: 100%;">${app.editingId ? "Actualizar Gasto" : "Registrar Gasto"}</button>
+                            `}
+                        </div>
+                    </div>
+                ` : ""}
+            `;
+
+            document.getElementById("app").innerHTML = html;
+        }
+
+        // Cargar datos al iniciar
+        cargarDatos();
+    </script>
+</body>
+</html>
