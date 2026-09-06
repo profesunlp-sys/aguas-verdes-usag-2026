@@ -12,11 +12,11 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: #f5f7fa;
-            color: #2c3e50;
+            background: #f0f2f5;
+            color: #1f2937;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -36,11 +36,49 @@
             font-size: 14px;
             opacity: 0.9;
         }
+        .top-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .card h3 {
+            color: #667eea;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .card .subtitle {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #1f2937;
+        }
         .tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid #e5e7eb;
             flex-wrap: wrap;
         }
         .tab-button {
@@ -64,117 +102,74 @@
         .section.active {
             display: block;
         }
-        .dashboard {
+        .summary-boxes {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             margin-bottom: 30px;
         }
-        .card {
+        .summary-box {
             background: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .card h3 {
-            color: #667eea;
+        .summary-box h4 {
             font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .summary-box .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress {
+            height: 100%;
+            background: #667eea;
+            transition: width 0.3s;
+        }
+        .alumna-row {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .alumna-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
         }
-        .card .value {
-            font-size: 28px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 5px;
-            cursor: pointer;
+        .alumna-header h5 {
             font-size: 14px;
             font-weight: 600;
-            transition: background 0.3s;
+            color: #1f2937;
         }
-        button:hover {
-            background: #5568d3;
-        }
-        button.secondary {
-            background: #6c757d;
-            padding: 6px 12px;
+        .alumna-stats {
+            display: flex;
+            gap: 20px;
             font-size: 12px;
         }
-        button.secondary:hover {
-            background: #5a6268;
-        }
-        button.delete {
-            background: #dc3545;
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-        button.delete:hover {
-            background: #c82333;
-        }
-        .table-wrapper {
-            overflow-x: auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th {
-            background: #f8f9fa;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #2c3e50;
-            border-bottom: 2px solid #e0e0e0;
-        }
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #e0e0e0;
-            font-size: 14px;
-        }
-        tr:hover {
-            background: #f8f9fa;
+        .alumna-stats span {
+            color: #666;
         }
         .status {
             display: inline-block;
             padding: 4px 12px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
         }
@@ -185,6 +180,35 @@
         .status.atrasada {
             background: #f8d7da;
             color: #721c24;
+        }
+        .table-wrapper {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #f3f4f6;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #1f2937;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+        tr:hover {
+            background: #f9fafb;
         }
         .modal {
             display: none;
@@ -228,8 +252,53 @@
             padding: 0;
             width: auto;
         }
-        .close-button:hover {
-            color: #333;
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        button.secondary {
+            background: #6c757d;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        button.delete {
+            background: #dc3545;
+        }
+        .actions {
+            display: flex;
+            gap: 8px;
         }
         .alert {
             padding: 15px;
@@ -244,16 +313,27 @@
             background: #f8d7da;
             color: #721c24;
         }
-        .actions {
-            display: flex;
-            gap: 8px;
+        .desglose {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
         }
-        .info-box {
+        .desglose-item {
             background: white;
             padding: 15px;
             border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .desglose-item h5 {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .desglose-item .amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1f2937;
         }
     </style>
 </head>
@@ -266,6 +346,27 @@
     <div class="container">
         <div id="message"></div>
 
+        <!-- TOP CARDS -->
+        <div class="top-cards">
+            <div class="card">
+                <h3>Total Recaudado</h3>
+                <div class="value" id="totalRecaudado">$0</div>
+            </div>
+            <div class="card">
+                <h3>Total Gastado</h3>
+                <div class="value" id="totalGastado">$0</div>
+            </div>
+            <div class="card">
+                <h3>Balance</h3>
+                <div class="value" id="balance">$0</div>
+            </div>
+            <div class="card">
+                <h3>Alumnas</h3>
+                <div class="value">9</div>
+            </div>
+        </div>
+
+        <!-- TABS -->
         <div class="tabs">
             <button class="tab-button active" onclick="cambiarTab(this, 'dashboard')">Dashboard</button>
             <button class="tab-button" onclick="cambiarTab(this, 'pagos')">Pagos</button>
@@ -279,27 +380,30 @@
                 <button onclick="exportarJSON()">📥 Exportar JSON</button>
             </div>
 
-            <div class="dashboard">
-                <div class="card">
-                    <h3>Total Recaudado</h3>
-                    <div class="value" id="totalRecaudado">$0</div>
+            <div class="section-title">Resumen Financiero</div>
+            <div class="summary-boxes">
+                <div class="summary-box">
+                    <h4>Total Recaudado</h4>
+                    <div class="value" id="sumRecaudado">$0</div>
                 </div>
-                <div class="card">
-                    <h3>Total Gastado</h3>
-                    <div class="value" id="totalGastado">$0</div>
+                <div class="summary-box">
+                    <h4>Total Gastado</h4>
+                    <div class="value" id="sumGastado">$0</div>
                 </div>
-                <div class="card">
-                    <h3>Balance</h3>
-                    <div class="value" id="balance">$0</div>
-                </div>
-                <div class="card">
-                    <h3>Alumnas</h3>
-                    <div class="value">9</div>
+                <div class="summary-box">
+                    <h4>Balance Neto</h4>
+                    <div class="value" id="sumBalance">$0</div>
                 </div>
             </div>
 
-            <h3 style="margin-bottom: 15px;">Resumen por Alumna</h3>
+            <div class="section-title">Situación de Alumnas</div>
             <div id="resumenAlumnas"></div>
+
+            <div class="section-title">Desglose de Ingresos por Cuota</div>
+            <div class="desglose" id="desgloseIngresos"></div>
+
+            <div class="section-title">Desglose de Egresos por Categoría</div>
+            <div class="desglose" id="desgloseEgresos"></div>
         </div>
 
         <!-- PAGOS -->
@@ -439,7 +543,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCJPNnJZ4ZE6rL6x-IA2w9VDJLJMvWfYb0",
@@ -472,7 +576,6 @@
             editandoGastoId: null
         };
 
-        // Cargar datos al iniciar
         window.addEventListener("load", async () => {
             await cargarDatos();
             rellenarSelectAlumnas();
@@ -488,8 +591,7 @@
                 const gastosDocs = await getDocs(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"));
                 window.appData.gastos = gastosDocs.docs.map(doc => ({...doc.data(), id: doc.id}));
             } catch (error) {
-                console.log("Inicializando Firebase con datos vacíos");
-                window.appData = { pagos: [], gastos: [], editandoPagoId: null, editandoGastoId: null };
+                console.log("Inicializando Firebase");
             }
         };
 
@@ -507,16 +609,12 @@
             }
 
             try {
-                const datos = {
-                    alumna, cuota, monto, fecha, entregadoPor, observaciones: obs
-                };
+                const datos = { alumna, cuota, monto, fecha, entregadoPor, observaciones: obs };
 
                 if (window.appData.editandoPagoId) {
-                    // Editar
                     await updateDoc(doc(db, "proyectos/aguas-verdes-usag-2026/pagos", window.appData.editandoPagoId), datos);
                     window.mostrarMensaje("Pago actualizado ✓", "success");
                 } else {
-                    // Crear
                     await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/pagos"), datos);
                     window.mostrarMensaje("Pago registrado ✓", "success");
                 }
@@ -542,16 +640,12 @@
             }
 
             try {
-                const datos = {
-                    concepto, categoria, monto, fecha, observaciones: obs
-                };
+                const datos = { concepto, categoria, monto, fecha, observaciones: obs };
 
                 if (window.appData.editandoGastoId) {
-                    // Editar
                     await updateDoc(doc(db, "proyectos/aguas-verdes-usag-2026/gastos", window.appData.editandoGastoId), datos);
                     window.mostrarMensaje("Gasto actualizado ✓", "success");
                 } else {
-                    // Crear
                     await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"), datos);
                     window.mostrarMensaje("Gasto registrado ✓", "success");
                 }
@@ -617,19 +711,20 @@
     </script>
 
     <script>
+        const ALUMNAS = [
+            { nombre: "Arocas, Guillermina", dni: "54214993" },
+            { nombre: "Bazzana, Sofía", dni: "54417252" },
+            { nombre: "Gastaldi, Indiana", dni: "53058354" },
+            { nombre: "Hasperué, Sofía", dni: "50688236" },
+            { nombre: "Gutiérrez Antiqueo, María Luz", dni: "55583300" },
+            { nombre: "Arce Medina, Oriana", dni: "54067969" },
+            { nombre: "Suñiga Zambrano, Morena Candela", dni: "52057875" },
+            { nombre: "Galosi, Zoe", dni: "52917119" },
+            { nombre: "Bustamante, Alina Avril", dni: "54602148" }
+        ];
+
         function rellenarSelectAlumnas() {
             const select = document.getElementById("pagoAlumna");
-            const ALUMNAS = [
-                { nombre: "Arocas, Guillermina", dni: "54214993" },
-                { nombre: "Bazzana, Sofía", dni: "54417252" },
-                { nombre: "Gastaldi, Indiana", dni: "53058354" },
-                { nombre: "Hasperué, Sofía", dni: "50688236" },
-                { nombre: "Gutiérrez Antiqueo, María Luz", dni: "55583300" },
-                { nombre: "Arce Medina, Oriana", dni: "54067969" },
-                { nombre: "Suñiga Zambrano, Morena Candela", dni: "52057875" },
-                { nombre: "Galosi, Zoe", dni: "52917119" },
-                { nombre: "Bustamante, Alina Avril", dni: "54602148" }
-            ];
             select.innerHTML = '<option value="">Selecciona una alumna</option>';
             ALUMNAS.forEach(a => {
                 const option = document.createElement("option");
@@ -695,18 +790,6 @@
         };
 
         window.actualizarVistas = function() {
-            const ALUMNAS = [
-                { nombre: "Arocas, Guillermina", dni: "54214993" },
-                { nombre: "Bazzana, Sofía", dni: "54417252" },
-                { nombre: "Gastaldi, Indiana", dni: "53058354" },
-                { nombre: "Hasperué, Sofía", dni: "50688236" },
-                { nombre: "Gutiérrez Antiqueo, María Luz", dni: "55583300" },
-                { nombre: "Arce Medina, Oriana", dni: "54067969" },
-                { nombre: "Suñiga Zambrano, Morena Candela", dni: "52057875" },
-                { nombre: "Galosi, Zoe", dni: "52917119" },
-                { nombre: "Bustamante, Alina Avril", dni: "54602148" }
-            ];
-
             const totalRecaudado = window.appData.pagos.reduce((sum, p) => sum + (p.monto || 0), 0);
             const totalGastado = window.appData.gastos.reduce((sum, g) => sum + (g.monto || 0), 0);
 
@@ -714,18 +797,60 @@
             document.getElementById("totalGastado").textContent = "$" + totalGastado.toLocaleString("es-AR");
             document.getElementById("balance").textContent = "$" + (totalRecaudado - totalGastado).toLocaleString("es-AR");
 
+            document.getElementById("sumRecaudado").textContent = "$" + totalRecaudado.toLocaleString("es-AR");
+            document.getElementById("sumGastado").textContent = "$" + totalGastado.toLocaleString("es-AR");
+            document.getElementById("sumBalance").textContent = "$" + (totalRecaudado - totalGastado).toLocaleString("es-AR");
+
+            // Resumen alumnas
             document.getElementById("resumenAlumnas").innerHTML = ALUMNAS.map(a => {
                 const totales = window.calcularTotales(a.nombre);
+                const porcentaje = (totales.pagado / 400000) * 100;
                 return `
-                    <div class="info-box">
-                        <h4>${a.nombre}</h4>
-                        <p style="font-size: 13px; margin-top: 8px;">Pagado: <strong>$${totales.pagado.toLocaleString("es-AR")}</strong></p>
-                        <p style="font-size: 13px;">Faltante: <strong>$${totales.faltante.toLocaleString("es-AR")}</strong></p>
-                        <p><span class="status ${totales.estado}">${totales.estado}</span></p>
+                    <div class="alumna-row">
+                        <div class="alumna-header">
+                            <h5>${a.nombre}</h5>
+                            <span class="status ${totales.estado}">${totales.estado}</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${Math.min(porcentaje, 100)}%"></div>
+                        </div>
+                        <div class="alumna-stats">
+                            <span>Pagado: $${totales.pagado.toLocaleString("es-AR")}</span>
+                            <span>Faltante: $${totales.faltante.toLocaleString("es-AR")}</span>
+                        </div>
                     </div>
                 `;
             }).join("");
 
+            // Desglose ingresos
+            const desgloseIngresos = {};
+            window.appData.pagos.forEach(p => {
+                if (!desgloseIngresos[p.cuota]) desgloseIngresos[p.cuota] = 0;
+                desgloseIngresos[p.cuota] += p.monto;
+            });
+
+            document.getElementById("desgloseIngresos").innerHTML = Object.entries(desgloseIngresos).map(([cuota, monto]) => `
+                <div class="desglose-item">
+                    <h5>${cuota}</h5>
+                    <div class="amount">$${monto.toLocaleString("es-AR")}</div>
+                </div>
+            `).join("");
+
+            // Desglose egresos
+            const desgloseEgresos = {};
+            window.appData.gastos.forEach(g => {
+                if (!desgloseEgresos[g.categoria]) desgloseEgresos[g.categoria] = 0;
+                desgloseEgresos[g.categoria] += g.monto;
+            });
+
+            document.getElementById("desgloseEgresos").innerHTML = Object.entries(desgloseEgresos).map(([categoria, monto]) => `
+                <div class="desglose-item">
+                    <h5>${categoria}</h5>
+                    <div class="amount">$${monto.toLocaleString("es-AR")}</div>
+                </div>
+            `).join("");
+
+            // Tabla pagos
             document.getElementById("tablaPagos").innerHTML = window.appData.pagos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).map(p => `
                 <tr>
                     <td>${new Date(p.fecha).toLocaleDateString("es-AR")}</td>
@@ -741,6 +866,7 @@
                 </tr>
             `).join("");
 
+            // Tabla gastos
             document.getElementById("tablaGastos").innerHTML = window.appData.gastos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).map(g => `
                 <tr>
                     <td>${new Date(g.fecha).toLocaleDateString("es-AR")}</td>
@@ -756,6 +882,7 @@
                 </tr>
             `).join("");
 
+            // Tabla alumnas
             document.getElementById("tablaAlumnas").innerHTML = ALUMNAS.map(a => {
                 const totales = window.calcularTotales(a.nombre);
                 return `
@@ -785,18 +912,6 @@
         };
 
         window.exportarJSON = function() {
-            const ALUMNAS = [
-                { nombre: "Arocas, Guillermina", dni: "54214993" },
-                { nombre: "Bazzana, Sofía", dni: "54417252" },
-                { nombre: "Gastaldi, Indiana", dni: "53058354" },
-                { nombre: "Hasperué, Sofía", dni: "50688236" },
-                { nombre: "Gutiérrez Antiqueo, María Luz", dni: "55583300" },
-                { nombre: "Arce Medina, Oriana", dni: "54067969" },
-                { nombre: "Suñiga Zambrano, Morena Candela", dni: "52057875" },
-                { nombre: "Galosi, Zoe", dni: "52917119" },
-                { nombre: "Bustamante, Alina Avril", dni: "54602148" }
-            ];
-
             const totalRecaudado = window.appData.pagos.reduce((sum, p) => sum + (p.monto || 0), 0);
             const totalGastado = window.appData.gastos.reduce((sum, g) => sum + (g.monto || 0), 0);
 
