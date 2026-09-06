@@ -124,10 +124,21 @@
         button:hover {
             background: #5568d3;
         }
+        button.secondary {
+            background: #6c757d;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        button.secondary:hover {
+            background: #5a6268;
+        }
         button.delete {
             background: #dc3545;
             padding: 6px 12px;
             font-size: 12px;
+        }
+        button.delete:hover {
+            background: #c82333;
         }
         .table-wrapper {
             overflow-x: auto;
@@ -155,6 +166,9 @@
             padding: 12px 15px;
             border-bottom: 1px solid #e0e0e0;
             font-size: 14px;
+        }
+        tr:hover {
+            background: #f8f9fa;
         }
         .status {
             display: inline-block;
@@ -202,6 +216,9 @@
             justify-content: space-between;
             align-items: center;
         }
+        .modal-header h2 {
+            font-size: 20px;
+        }
         .close-button {
             background: transparent;
             color: #999;
@@ -209,6 +226,10 @@
             border: none;
             cursor: pointer;
             padding: 0;
+            width: auto;
+        }
+        .close-button:hover {
+            color: #333;
         }
         .alert {
             padding: 15px;
@@ -343,7 +364,7 @@
     <div id="modalPago" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Agregar Pago</h2>
+                <h2 id="modalPagoTitle">Agregar Pago</h2>
                 <button class="close-button" onclick="cerrarModalPago()">×</button>
             </div>
             <div class="form-group">
@@ -374,7 +395,7 @@
                 <label>Observaciones</label>
                 <textarea id="pagoObs" rows="3"></textarea>
             </div>
-            <button onclick="guardarPago()" style="width: 100%;">Registrar Pago</button>
+            <button onclick="guardarPago()" style="width: 100%;" id="btnGuardarPago">Registrar Pago</button>
         </div>
     </div>
 
@@ -382,7 +403,7 @@
     <div id="modalGasto" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Agregar Gasto</h2>
+                <h2 id="modalGastoTitle">Agregar Gasto</h2>
                 <button class="close-button" onclick="cerrarModalGasto()">×</button>
             </div>
             <div class="form-group">
@@ -412,13 +433,13 @@
                 <label>Observaciones</label>
                 <textarea id="gastoObs" rows="3"></textarea>
             </div>
-            <button onclick="guardarGasto()" style="width: 100%;">Registrar Gasto</button>
+            <button onclick="guardarGasto()" style="width: 100%;" id="btnGuardarGasto">Registrar Gasto</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCJPNnJZ4ZE6rL6x-IA2w9VDJLJMvWfYb0",
@@ -446,10 +467,12 @@
 
         window.appData = {
             pagos: [],
-            gastos: []
+            gastos: [],
+            editandoPagoId: null,
+            editandoGastoId: null
         };
 
-        // Inicializar
+        // Cargar datos al iniciar
         window.addEventListener("load", async () => {
             await cargarDatos();
             rellenarSelectAlumnas();
@@ -459,25 +482,14 @@
 
         window.cargarDatos = async function() {
             try {
-                const docSnap = await getDocs(collection(db, "proyectos/aguas-verdes-usag-2026/pagos"));
-                window.appData.pagos = docSnap.docs.map(doc => ({...doc.data(), id: doc.id}));
+                const pagosDocs = await getDocs(collection(db, "proyectos/aguas-verdes-usag-2026/pagos"));
+                window.appData.pagos = pagosDocs.docs.map(doc => ({...doc.data(), id: doc.id}));
 
-                const docSnap2 = await getDocs(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"));
-                window.appData.gastos = docSnap2.docs.map(doc => ({...doc.data(), id: doc.id}));
+                const gastosDocs = await getDocs(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"));
+                window.appData.gastos = gastosDocs.docs.map(doc => ({...doc.data(), id: doc.id}));
             } catch (error) {
-                console.log("Primeras carga de datos");
-                window.appData = { pagos: [], gastos: [] };
-            }
-        };
-
-        window.guardarDatos = async function() {
-            try {
-                await setDoc(doc(db, "proyectos", "aguas-verdes-usag-2026"), {
-                    alumnas: ALUMNAS,
-                    totalPagos: window.appData.pagos.length
-                });
-            } catch (error) {
-                console.error("Error:", error);
+                console.log("Inicializando Firebase con datos vacíos");
+                window.appData = { pagos: [], gastos: [], editandoPagoId: null, editandoGastoId: null };
             }
         };
 
@@ -495,13 +507,23 @@
             }
 
             try {
-                await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/pagos"), {
+                const datos = {
                     alumna, cuota, monto, fecha, entregadoPor, observaciones: obs
-                });
+                };
+
+                if (window.appData.editandoPagoId) {
+                    // Editar
+                    await updateDoc(doc(db, "proyectos/aguas-verdes-usag-2026/pagos", window.appData.editandoPagoId), datos);
+                    window.mostrarMensaje("Pago actualizado ✓", "success");
+                } else {
+                    // Crear
+                    await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/pagos"), datos);
+                    window.mostrarMensaje("Pago registrado ✓", "success");
+                }
+                
                 window.cerrarModalPago();
                 await window.cargarDatos();
                 window.actualizarVistas();
-                window.mostrarMensaje("Pago registrado ✓", "success");
             } catch (error) {
                 window.mostrarMensaje("Error: " + error.message, "error");
             }
@@ -520,32 +542,77 @@
             }
 
             try {
-                await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"), {
+                const datos = {
                     concepto, categoria, monto, fecha, observaciones: obs
-                });
+                };
+
+                if (window.appData.editandoGastoId) {
+                    // Editar
+                    await updateDoc(doc(db, "proyectos/aguas-verdes-usag-2026/gastos", window.appData.editandoGastoId), datos);
+                    window.mostrarMensaje("Gasto actualizado ✓", "success");
+                } else {
+                    // Crear
+                    await addDoc(collection(db, "proyectos/aguas-verdes-usag-2026/gastos"), datos);
+                    window.mostrarMensaje("Gasto registrado ✓", "success");
+                }
+                
                 window.cerrarModalGasto();
                 await window.cargarDatos();
                 window.actualizarVistas();
-                window.mostrarMensaje("Gasto registrado ✓", "success");
             } catch (error) {
                 window.mostrarMensaje("Error: " + error.message, "error");
             }
         };
 
         window.eliminarPago = async function(id) {
-            if (confirm("¿Eliminar?")) {
-                await deleteDoc(doc(db, "proyectos/aguas-verdes-usag-2026/pagos", id));
-                await window.cargarDatos();
-                window.actualizarVistas();
+            if (confirm("¿Eliminar este pago?")) {
+                try {
+                    await deleteDoc(doc(db, "proyectos/aguas-verdes-usag-2026/pagos", id));
+                    await window.cargarDatos();
+                    window.actualizarVistas();
+                    window.mostrarMensaje("Pago eliminado", "success");
+                } catch (error) {
+                    window.mostrarMensaje("Error: " + error.message, "error");
+                }
             }
         };
 
         window.eliminarGasto = async function(id) {
-            if (confirm("¿Eliminar?")) {
-                await deleteDoc(doc(db, "proyectos/aguas-verdes-usag-2026/gastos", id));
-                await window.cargarDatos();
-                window.actualizarVistas();
+            if (confirm("¿Eliminar este gasto?")) {
+                try {
+                    await deleteDoc(doc(db, "proyectos/aguas-verdes-usag-2026/gastos", id));
+                    await window.cargarDatos();
+                    window.actualizarVistas();
+                    window.mostrarMensaje("Gasto eliminado", "success");
+                } catch (error) {
+                    window.mostrarMensaje("Error: " + error.message, "error");
+                }
             }
+        };
+
+        window.editarPago = function(pago) {
+            window.appData.editandoPagoId = pago.id;
+            document.getElementById("pagoAlumna").value = pago.alumna;
+            document.getElementById("pagoCuota").value = pago.cuota;
+            document.getElementById("pagoMonto").value = pago.monto;
+            document.getElementById("pagoFecha").value = pago.fecha;
+            document.getElementById("pagoEntregadoPor").value = pago.entregadoPor || "";
+            document.getElementById("pagoObs").value = pago.observaciones || "";
+            document.getElementById("modalPagoTitle").textContent = "Editar Pago";
+            document.getElementById("btnGuardarPago").textContent = "Actualizar Pago";
+            document.getElementById("modalPago").classList.add("active");
+        };
+
+        window.editarGasto = function(gasto) {
+            window.appData.editandoGastoId = gasto.id;
+            document.getElementById("gastoConcepto").value = gasto.concepto;
+            document.getElementById("gastoCategoria").value = gasto.categoria;
+            document.getElementById("gastoMonto").value = gasto.monto;
+            document.getElementById("gastoFecha").value = gasto.fecha;
+            document.getElementById("gastoObs").value = gasto.observaciones || "";
+            document.getElementById("modalGastoTitle").textContent = "Editar Gasto";
+            document.getElementById("btnGuardarGasto").textContent = "Actualizar Gasto";
+            document.getElementById("modalGasto").classList.add("active");
         };
     </script>
 
@@ -563,6 +630,7 @@
                 { nombre: "Galosi, Zoe", dni: "52917119" },
                 { nombre: "Bustamante, Alina Avril", dni: "54602148" }
             ];
+            select.innerHTML = '<option value="">Selecciona una alumna</option>';
             ALUMNAS.forEach(a => {
                 const option = document.createElement("option");
                 option.value = a.nombre;
@@ -585,6 +653,14 @@
         };
 
         window.abrirModalPago = function() {
+            window.appData.editandoPagoId = null;
+            document.getElementById("modalPagoTitle").textContent = "Agregar Pago";
+            document.getElementById("btnGuardarPago").textContent = "Registrar Pago";
+            document.getElementById("pagoAlumna").value = "";
+            document.getElementById("pagoCuota").value = "";
+            document.getElementById("pagoMonto").value = "";
+            document.getElementById("pagoEntregadoPor").value = "";
+            document.getElementById("pagoObs").value = "";
             document.getElementById("modalPago").classList.add("active");
         };
 
@@ -593,6 +669,13 @@
         };
 
         window.abrirModalGasto = function() {
+            window.appData.editandoGastoId = null;
+            document.getElementById("modalGastoTitle").textContent = "Agregar Gasto";
+            document.getElementById("btnGuardarGasto").textContent = "Registrar Gasto";
+            document.getElementById("gastoConcepto").value = "";
+            document.getElementById("gastoCategoria").value = "";
+            document.getElementById("gastoMonto").value = "";
+            document.getElementById("gastoObs").value = "";
             document.getElementById("modalGasto").classList.add("active");
         };
 
@@ -649,7 +732,12 @@
                     <td>${p.alumna}</td>
                     <td>${p.cuota}</td>
                     <td>$${p.monto.toLocaleString("es-AR")}</td>
-                    <td><button class="delete" onclick="window.eliminarPago('${p.id}')">Eliminar</button></td>
+                    <td>
+                        <div class="actions">
+                            <button class="secondary" onclick="window.editarPago({id: '${p.id}', alumna: '${p.alumna}', cuota: '${p.cuota}', monto: ${p.monto}, fecha: '${p.fecha}', entregadoPor: '${p.entregadoPor || ''}', observaciones: '${p.observaciones || ''}'})">Editar</button>
+                            <button class="delete" onclick="window.eliminarPago('${p.id}')">Eliminar</button>
+                        </div>
+                    </td>
                 </tr>
             `).join("");
 
@@ -659,7 +747,12 @@
                     <td>${g.concepto}</td>
                     <td>${g.categoria}</td>
                     <td>$${g.monto.toLocaleString("es-AR")}</td>
-                    <td><button class="delete" onclick="window.eliminarGasto('${g.id}')">Eliminar</button></td>
+                    <td>
+                        <div class="actions">
+                            <button class="secondary" onclick="window.editarGasto({id: '${g.id}', concepto: '${g.concepto}', categoria: '${g.categoria}', monto: ${g.monto}, fecha: '${g.fecha}', observaciones: '${g.observaciones || ''}'})">Editar</button>
+                            <button class="delete" onclick="window.eliminarGasto('${g.id}')">Eliminar</button>
+                        </div>
+                    </td>
                 </tr>
             `).join("");
 
